@@ -1,0 +1,23 @@
+body{
+    background: url(https://docentes.ufps.edu.co/assets/img/bg/bg1.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.error{
+    color:red;
+}
+.row{
+    margin-top: 10%;
+}
+
+p{
+    font-size:30px;
+    font-family: "Montserrat", cursive;
+}
+label{
+
+    font-size:15px;
+}
+
