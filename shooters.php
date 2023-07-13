@@ -6,22 +6,21 @@
  * Time: 20:06
  */
 
-require "models/Worker.php";
+require "models/User.php";
 require "models/Shooter.php";
 
-//Worker::deleteCredentialsFromSession();
+//User::deleteCredentialsFromSession();
 //print_r($_SESSION['user']);
-
 //echo Worker::getCredentialsFromSession()->getEmail();
 //print_r(Project::getDuration());
 
 
 if(isset($_SESSION['user'])) {
-    $worker = Worker::getCredentialsFromSession();
-    //die($worker->getEmail());
-    if ($worker->checkCredentials())
+    $user = User::getCredentialsFromSession();
+    
+    if ($user->isLoggedIn())
     {
-        //
+        
     }
     else
     {
@@ -35,21 +34,6 @@ else
     header("Location: login.php");
     //Worker::deleteCredentialsFromSession();
     exit();
-}
-
-if(isset($_POST['submit']))
-{
-    if(!empty($_POST['workerId']))
-    {
-        Worker::updateProject($_POST['workerId'], $_POST['project']);
-    }
-    else
-    {
-        Activity::updateProject($_POST['activityId'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'],$_POST['project']);
-    }
-
 }
 
 ?>

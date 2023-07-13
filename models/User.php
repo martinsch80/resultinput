@@ -11,25 +11,34 @@ require_once "models/DatabaseService.php";
 
 class User implements DatabaseService
 {
+    const TABLE_NAME = "tlsb_usr";
+    const COLUMN_ID = "usr_id";
+    const COLUMN_NAME = "usr_guild";
+    const COLUMN_PASSWORD = "usr_password";
+    const COLUMN_RIGHT = "usr_right";
+    const COLUMN_CODE = "usr_code";
+    const COLUMN_ACTIVE = "active";
+    const COLUMN_STATE = 'usr_state';
+
     private $id;
     private $name;
     private $password;
+    private $right;
     private $usrCode;
     private $active;
     private $usrState;
+
     private $errors;
 
-
-    public function __construct($id, $name, $password, $usrCode, $active, $usrState)
+    public function __construct()
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->password = $password;
-        $this->usrCode = $usrCode;
-        $this->active = $active;
-        $this->usrState = $usrState;
-
-        $this->projectId = $projectId;
+        $this->id = null;
+        $this->name = "";
+        $this->password = "";
+        $this->right = null;
+        $this->usrCode = null;
+        $this->active = null;
+        $this->usrState = null;
         $this->errors = [];
     }
 
@@ -45,17 +54,18 @@ class User implements DatabaseService
     }
     public function checkCredentials() //for Login
     {
-        if(User::getByEmail($this->getByUserName()))
+        $dbUsers = User::getByUserName($this->getName());
+        if($dbUsers)
         {
-            if(strcasecmp($this->getByUserName(),User::getByUserName($this->getByUserName())[0]->getEmail()) == 0)
+            if(strcasecmp($this->getName(),$dbUsers[0]->getName()) == 0)
             {
-                if(strcasecmp($this->getPassword(), User::getByUserName($this->getEmail())[0]->getPassword()) == 0)
+                if(strcasecmp($this->getPassword(), $dbUsers[0]->getPassword()) == 0)
                 {
-
+                    $this->setId($dbUsers[0]->getId());
                     return true;
                 }
 
-                $this->errors['login'] = "Zugang verweigert!";
+                $this->errors['login'] = "Zugang verweigert! Passwort Falsch";
                 return false;
             }
 
@@ -64,14 +74,13 @@ class User implements DatabaseService
         }
         $this->errors['login'] = "Zugang verweigert!";
         return false;
-
     }
 
     public static function isLoggedIn()
     {
         if(isset($_SESSION['user'])) {
-            $worker = User::getCredentialsFromSession();
-            if ($worker->checkCredentials())
+            $user = User::getCredentialsFromSession();
+            if ($user->getId() == $_SESSION['user'])
             {
                 return true;
             }
@@ -92,14 +101,19 @@ class User implements DatabaseService
         $matchesByEmail = [];
 
         $db = Database::connect();
-        $sql = 'SELECT usr_guild, use_password FROM tlsb_usr WHERE usr_guild = ?';
-        $stmt = $db->prepare($sql);
-        $stmt->execute(array($usrName));
+        $sql = 'SELECT '. self::COLUMN_ID .','. self::COLUMN_NAME .', '.self::COLUMN_PASSWORD.' FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_NAME .' = :name AND '.self::COLUMN_ACTIVE.'=1';
+        $stmt = $db->prepare($sql);        
+        $stmt->bindParam(':name', $usrName);
+        $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach($data as $obj)
         {
-            $matchesByEmail[] = new User(null, "", $obj['usr_guild'], $obj['use_password'], null);
+            $user = new User();
+            $user->setId($obj[self::COLUMN_ID]);
+            $user->setName($obj[self::COLUMN_NAME]);
+            $user->setPassword($obj[self::COLUMN_PASSWORD]);
+            $matchesByEmail[] = $user;
         }
         return $matchesByEmail;
     }
@@ -136,7 +150,7 @@ class User implements DatabaseService
 
     public function validate()
     {
-        return $this->validateEmail() & $this->validatePassword() & $this->checkCredentials();
+        return $this->validatePassword() & $this->checkCredentials();
     }
 
     public function validatePassword()
@@ -190,7 +204,7 @@ return true;
         {
             $userForSession = serialize($this);
             
-            $_SESSION['user'] = $userForSession;
+            $_SESSION['user'] =$this->getId();
             return true;
         }
     }
@@ -198,8 +212,8 @@ return true;
     {
         if(isset($_SESSION['user']))
         {
-            $userFromSession = unserialize($_SESSION['user']);
-            return new Worker(null, "", $userFromSession->getEmail(), $userFromSession->getPassword(), null);
+            $user = self::get($_SESSION['user']);
+            return $user;
         }
         else
         {
@@ -216,28 +230,26 @@ return true;
     public function update()
     {
         $db = Database::connect();
-        $sql = 'UPDATE tbl_worker SET name = ?, email = ?, passwort = ?, p_id = ? WHERE w_id = ?';
+        $sql = 'UPDATE '. self::TABLE_NAME .' SET '. self::COLUMN_NAME.' = :name, '.self::COLUMN_PASSWORD.' = :password WHERE '. self::COLUMN_ID .' = :id';
         $stmt = $db->prepare($sql);
-        $stmt->execute(array($this->getName(), $this->getEmail(), $this->getPassword(), $this->getProjectId(), $this->getId()));
+        $stmt->bindParam(':id', $this->getId());
+        $stmt->bindParam(':name', $this->getName());
+        $stmt->bindParam(':password', $this->getPassword());
+        $stmt->execute();
         Database::disconnect();
     }
 
-    public static function updateProject($id, $pid)
-    {
-        $db = Database::connect();
-        $sql = 'UPDATE tbl_worker SET p_id = ? WHERE w_id = ?';
-        $stmt = $db->prepare($sql);
-        $stmt->execute(array($pid, $id));
-        Database::disconnect();
-    }
+   
 
     public function create()
     {
         // TODO: Implement create() method.
         $db = Database::connect();
-        $sql = 'INSERT INTO tbl_worker (name, email, passwort, p_id) values (?,?,?,?)';
+        $sql = 'INSERT INTO '. self::TABLE_NAME .' (name, passwort) values (:name, :password)';
         $stmt = $db->prepare($sql);
-        $stmt->execute(array($this->getName(), $this->getEmail(), $this->getPassword(), $this->getProjectId()));
+        $stmt->bindParam(':name', $this->getName());
+        $stmt->bindParam(':password', $this->getPassword());
+        $stmt->execute();
 
         $id =$db->lastInsertId();
 
@@ -250,29 +262,20 @@ return true;
     {
         // TODO: Implement delete() method.
         $db = Database::connect();
-        $sql = 'DELETE FROM tbl_worker WHERE w_id=?';
+        $sql = 'DELETE FROM '. self::TABLE_NAME .' WHERE '. self::COLUMN_ID .'= :id';
         $stmt = $db->prepare($sql);
-        $stmt->execute(array($id));
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
         Database::disconnect();
     }
 
-    public static function deleteRefToProject($id)
-    {
-
-        $db = Database::connect();
-        $sql = "UPDATE tbl_worker SET p_id=? WHERE w_id=?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute(array(NULL, $id));
-        Database::disconnect();
-    }
 
     public static function getAll()
     {
-        // TODO: Implement getAll() method.
-        $workers = [];
+        $users = [];
 
         $db = Database::connect();
-        $sql = 'SELECT * FROM tbl_worker ORDER BY name ASC';
+        $sql = 'SELECT * FROM '. self::TABLE_NAME .' ORDER BY '.self::COLUMN_NAME.' ASC';
         $stmt=$db->prepare($sql);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -281,67 +284,39 @@ return true;
 
         foreach ($data as $obj)
         {
-            $workers[] = new Worker($obj['w_id'], $obj['name'], $obj['email'], $obj['passwort'], $obj['p_id']);
+            $users[] = self::creatObj($obj);
         }
 
-        return $workers;
+        return $users;
     }
 
-    public static function getAllWithoutProject()
-    {
-        // TODO: Implement getAll() method.
-        $workers = [];
-
-        $db = Database::connect();
-        $sql = 'SELECT * FROM tbl_worker WHERE p_id is ?';
-        $stmt=$db->prepare($sql);
-        $stmt->execute(array(NULL));
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        Database::disconnect();
-
-        foreach ($data as $obj)
-        {
-            $workers[] = new Worker($obj['w_id'], $obj['name'], $obj['email'], $obj['passwort'], $obj['p_id']);
-        }
-
-        return $workers;
-    }
-    public static function getAllInProject($pid)
-    {
-        // TODO: Implement getAll() method.
-        $workers = [];
-
-        $db = Database::connect();
-        $sql = 'SELECT * FROM tbl_worker WHERE p_id=?';
-        $stmt=$db->prepare($sql);
-        $stmt->execute(array($pid));
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        Database::disconnect();
-
-        foreach ($data as $obj)
-        {
-            $workers[] = new Worker($obj['w_id'], $obj['name'], $obj['email'], $obj['passwort'], $obj['p_id']);
-        }
-
-        return $workers;
+    private static function createObj($obj){
+        $user = new User();
+        $user->setId($obj[self::COLUMN_ID]);
+        $user->setName($obj[self::COLUMN_NAME]);
+       /*
+        $user->right = $obj[self::COLUMN_RIGHT];
+        $user->usrCode = $obj[self::COLUMN_CODE];
+        $user->active = $obj[self::COLUMN_ACTIVE];
+        $user->usrState = $obj[self::COLUMN_STATE];*/
+        return $user;
     }
 
     public static function get($id)
     {
         // TODO: Implement get() method.
         $db = Database::connect();
-        $sql = 'SELECT * FROM tbl_worker WHERE w_id = ?';
+        $sql = 'SELECT * FROM '. self::TABLE_NAME .' WHERE '. self::COLUMN_ID .' = :id';
         $stmt=$db->prepare($sql);
-        $stmt->execute(array($id));
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         Database::disconnect();
 
-        $worker = new Worker($data['w_id'], $data['name'], $data['email'], $data['passwort'], $data['p_id']);
+        $user = self::createObj($data);
 
-        return $worker;
+        return $user;
     }
 
     /**

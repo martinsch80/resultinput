@@ -7,7 +7,7 @@
  * Time: 14:00
  */
 
-require "models/Worker.php";
+require "models/User.php";
 
 
 
@@ -21,16 +21,16 @@ require "models/Worker.php";
 
 if(!empty($_GET['logoff']))
 {
-    Worker::deleteCredentialsFromSession();
+    User::deleteCredentialsFromSession();
     header("Location: login.php");
 }
 
-Worker::isLoggedIn();
+User::isLoggedIn();
 
 if(isset($_POST['submit']))
 {
-    $incomingWorker = new Worker(null, "", "", "", null);
-    $incomingWorker->setEmail(isset($_POST['email']) ? $_POST['email'] : "");
+    $incomingWorker = new User();
+    $incomingWorker->setName(isset($_POST['email']) ? $_POST['email'] : "");
     $incomingWorker->setPassword(isset($_POST['password']) ? $_POST['password'] : "");
 
     $validated = $incomingWorker->validate();

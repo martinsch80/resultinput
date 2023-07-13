@@ -6,7 +6,7 @@
  * Time: 20:06
  */
 
-require "models/Worker.php";
+require "models/User.php";
 require "models/Round.php";
 
 //Worker::deleteCredentialsFromSession();
@@ -17,9 +17,9 @@ require "models/Round.php";
 
 
 if(isset($_SESSION['user'])) {
-    $worker = Worker::getCredentialsFromSession();
+    $user = User::getCredentialsFromSession();
     //die($worker->getEmail());
-    if ($worker->checkCredentials())
+    if ($user->isLoggedIn())
     {
         //
     }
@@ -41,7 +41,7 @@ if(isset($_POST['submit']))
 {
     if(!empty($_POST['workerId']))
     {
-        Worker::updateProject($_POST['workerId'], $_POST['project']);
+        user::updateProject($_POST['workerId'], $_POST['project']);
     }
     else
     {

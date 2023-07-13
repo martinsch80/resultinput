@@ -6,7 +6,7 @@
  * Time: 20:06
  */
 
-require "models/Worker.php";
+require "models/User.php";
 require "models/Discipline.php";
 
 //Worker::deleteCredentialsFromSession();
@@ -17,39 +17,24 @@ require "models/Discipline.php";
 
 
 if(isset($_SESSION['user'])) {
-    $worker = Worker::getCredentialsFromSession();
+    $user = User::getCredentialsFromSession();
     //die($worker->getEmail());
-    if ($worker->checkCredentials())
+    if ($user->isLoggedIn())
     {
         //
     }
     else
     {
         header("Location: login.php");
-        //Worker::deleteCredentialsFromSession();
+        User::deleteCredentialsFromSession();
         exit();
     }
 }
 else
 {
     header("Location: login.php");
-    //Worker::deleteCredentialsFromSession();
+    User::deleteCredentialsFromSession();
     exit();
-}
-
-if(isset($_POST['submit']))
-{
-    if(!empty($_POST['workerId']))
-    {
-        Worker::updateProject($_POST['workerId'], $_POST['project']);
-    }
-    else
-    {
-        Activity::updateProject($_POST['activityId'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'],$_POST['project']);
-    }
-
 }
 
 ?>
