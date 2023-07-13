@@ -6,10 +6,10 @@
  * Time: 20:06
  */
 
-require "models/Worker.php";
+require "models/User.php";
 require "models/Discipline.php";
 
-if(!(Worker::isLoggedIn()))
+if(!(User::isLoggedIn()))
 {
    header("Location: login.php");
    exit();

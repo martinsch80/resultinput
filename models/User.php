@@ -293,12 +293,11 @@ return true;
     private static function createObj($obj){
         $user = new User();
         $user->setId($obj[self::COLUMN_ID]);
-        $user->setName($obj[self::COLUMN_NAME]);
-       /*
-        $user->right = $obj[self::COLUMN_RIGHT];
-        $user->usrCode = $obj[self::COLUMN_CODE];
-        $user->active = $obj[self::COLUMN_ACTIVE];
-        $user->usrState = $obj[self::COLUMN_STATE];*/
+        $user->setName($obj[self::COLUMN_NAME]);       
+        $user->setRight($obj[self::COLUMN_RIGHT]);
+        $user->setUsrCode($obj[self::COLUMN_CODE]);
+        $user->setActive($obj[self::COLUMN_ACTIVE]);
+        $user->setUsrState($obj[self::COLUMN_STATE]);
         return $user;
     }
 
@@ -366,6 +365,72 @@ return true;
     {
         $this->password = $password;
     }
+
+
+    /**
+     * @return mixed
+     */
+    public function getRight()
+    {
+        return $this->right;
+    }
+
+    /**
+     * @param mixed $password
+     */
+    public function setRight($right)
+    {
+        $this->right = $right;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUsrCode()
+    {
+        return $this->usrCode;
+    }
+
+    /**
+     * @param mixed $usrCode
+     */
+    public function setUsrCode($usrCode)
+    {
+        $this->usrCode = $usrCode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUsrState()
+    {
+        return $this->usrState;
+    }
+
+    /**
+     * @param mixed $usrState
+     */
+    public function setUsrState($usrState)
+    {
+        $this->usrState = $usrState;
+    }
+
 
 
     /**

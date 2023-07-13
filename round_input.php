@@ -7,20 +7,22 @@
  */
 
 require "models/User.php";
-require "models/Shooter.php";
+require "models/Discipline.php";
+require "models/Round.php";
 
-//User::deleteCredentialsFromSession();
+//Worker::deleteCredentialsFromSession();
 //print_r($_SESSION['user']);
+
 //echo Worker::getCredentialsFromSession()->getEmail();
 //print_r(Project::getDuration());
 
 
 if(isset($_SESSION['user'])) {
     $user = User::getCredentialsFromSession();
-    
+    //die($worker->getEmail());
     if ($user->isLoggedIn())
     {
-
+        //
     }
     else
     {
@@ -36,11 +38,22 @@ else
     exit();
 }
 
+if(isset($_GET['disciplineId']))
+{
+    $disciplineId = $_GET['disciplineId'];
+}
+
+if(isset($_GET['roundId']))
+{
+    $roundId = $_GET['roundId'];
+}
+
+$discrictId = substr($user->getUsrCode(), 0, 3);
 ?>
 
 <html>
 <head>
-    <title>Schützen</title>
+    <title>Runden</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/indexStyle.css" rel="stylesheet" type="text/css">
@@ -65,34 +78,26 @@ else
 </style>
 <section class="container-fluid">
     <div class="row justify-content-center  ">
-        <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
-            <p class="text-center"><strong>Schützen</strong></p>
+        <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
+            <p class="text-center"><strong>Ergebnisseingabe</strong></p>
 
             <div class="form-group">
                 <table class="table table-striped">
             <?php
 
-            $shooters = Shooter::getAllByPassNr($user->getUsrCode());
+            $discipline = Discipline::get($disciplineId);
+            $round = Round::get($roundId);
 
-           
-                echo "<tr>";
-                echo "<th>PassNr</th>";
-                echo "<th>Name</th>";
-                echo "<th>Auswählen</th>";
-                echo "<th></th>";
-                echo "</tr>";
-                foreach ($shooters as $shooter)
-                {
-                echo "<tr>";
-                echo "<td>" . $shooter->getPassNr() ."</td>";
-                echo "<td>" . $shooter->getName() ."</td>";         
-                echo "<td>";
-                echo '<a class="btn btn-info" href="view_shooter.php?id=' . $shooter->getId() . '"><i class="fa fa-x fa-eye"></i></a>';
-                echo "&nbsp";
-                echo "</td>";
-                echo "</tr>";
+            
+            echo '<tr>';
+            echo '<th>RUNDE</th>';
+            echo '<td>'.$round->getRound().'</td>';
+            echo '</tr>';
 
-            }
+            echo '<tr>';
+            echo '<th>DISZIPLIN</th>';
+            echo '<td>'.$discipline->getName().'</td>';
+            echo '</tr>';
 
             ?>
 

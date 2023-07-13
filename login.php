@@ -41,7 +41,7 @@ if(isset($_POST['submit']))
     {
         $incomingWorker->saveCredentialsToSession();
         header("Refresh:0");
-        header("Location: shooters.php");
+        header("Location: disciplines.php");
         exit();
     }
     else

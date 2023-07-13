@@ -2,7 +2,7 @@
 
 class Database
 {
-    private static $dbName = 'db_projektmanagementZANGERL';
+    private static $dbName = 'tlsb';
     private static $dbHost = 'localhost';
     private static $dbUsername = 'rwk_db';
     private static $dbUserPassword = 'hallo123';

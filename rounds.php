@@ -37,21 +37,12 @@ else
     exit();
 }
 
-if(isset($_POST['submit']))
+if(isset($_GET['disciplineId']))
 {
-    if(!empty($_POST['workerId']))
-    {
-        user::updateProject($_POST['workerId'], $_POST['project']);
-    }
-    else
-    {
-        Activity::updateProject($_POST['activityId'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'], $_POST['project']);
-        //Worker::updateProject($_POST['worker'],$_POST['project']);
-    }
-
+    $disciplineId = $_GET['disciplineId'];
 }
 
+$discrictId = substr($user->getUsrCode(), 0, 3);
 ?>
 
 <html>
@@ -88,7 +79,7 @@ if(isset($_POST['submit']))
                 <table class="table table-striped">
             <?php
 
-            $rounds = Round::getAllByDistrictAndDiscipline(705, 1);
+            $rounds = Round::getAllByDistrictAndDiscipline($discrictId, $disciplineId);
 
            
                 echo "<tr>";
@@ -107,7 +98,8 @@ if(isset($_POST['submit']))
                 echo "<td>" . $round->getStart() ."</td>";
                 echo "<td>" . $round->getStop() ."</td>";
                 echo "<td>";
-                echo '<a class="btn btn-info" href="view_discipline.php?id=' . $round->getId() . '"><i class="fa fa-x fa-eye"></i></a>';
+                echo '<a class="btn btn-info" href="view_discipline.php?id=' . $round->getId() . '"><i class="fa fa-x fa-eye"></i>Details</a>';
+                echo '<a class="btn btn-success" href="round_input.php?disciplineId='.$disciplineId.'&roundId=' . $round->getId() . '"><i class="fa fa-x fa-pencil"></i>Select</a>';
                 echo "&nbsp";
                 echo "</td>";
                 echo "</tr>";

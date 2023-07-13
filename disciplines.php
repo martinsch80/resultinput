@@ -37,6 +37,7 @@ else
     exit();
 }
 
+
 ?>
 
 <html>
@@ -90,7 +91,9 @@ else
                 echo "<td>" . $diszipline->getName() ."</td>";                
                 echo "<td>" . $diszipline->getSeason() ."</td>";
                 echo "<td>";
-                echo '<a class="btn btn-info" href="view_discipline.php?id=' . $diszipline->getId() . '"><i class="fa fa-x fa-eye"></i></a>';
+                echo '<a alt="Details" class="btn btn-info" href="view_discipline.php?id=' . $diszipline->getId() . '"><i class="fa fa-x fa-eye"></i>Details</a>';
+                echo '<a alt="Select" class="btn btn-success" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pincele"></i> SELECT</a>';
+                
                 echo "&nbsp";
                 echo "</td>";
                 echo "</tr>";
