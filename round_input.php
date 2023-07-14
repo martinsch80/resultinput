@@ -9,6 +9,9 @@
 require "models/User.php";
 require "models/Discipline.php";
 require "models/Round.php";
+require "models/Team.php";
+require "models/TeamResults.php";
+require "models/Shooter.php";
 
 //Worker::deleteCredentialsFromSession();
 //print_r($_SESSION['user']);
@@ -48,13 +51,21 @@ if(isset($_GET['roundId']))
     $roundId = $_GET['roundId'];
 }
 
+if(isset($_GET['teamId']))
+{
+    $teamId = $_GET['teamId'];
+}
+
+$teamResult = TeamResults::get(21621);
+print_r(serialize($teamResult));
+
 $discrictId = substr($user->getUsrCode(), 0, 3);
 ?>
 
 <html>
 <head>
     <title>Runden</title>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/indexStyle.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
@@ -81,6 +92,17 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
         <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
             <p class="text-center"><strong>Ergebnisseingabe</strong></p>
 
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
+                    <li class="breadcrumb-item"><a href="rounds.php?disciplineId=<?=$disciplineId?>">Runde</a></li>
+                    <li class="breadcrumb-item">Gilde</li>
+                    <li class="breadcrumb-item"><a href="teams.php?disciplineId=<?=$disciplineId?>&roundId=<?=$roundId?>">Team</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Ergebniseingabe</li>
+                </ol>
+            </nav>
+
+
             <div class="form-group">
                 <table class="table table-striped">
             <?php
@@ -94,15 +116,56 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
             echo '<td>'.$round->getRound().'</td>';
             echo '</tr>';
 
+            $discipline = Discipline::get($disciplineId);
             echo '<tr>';
             echo '<th>DISZIPLIN</th>';
             echo '<td>'.$discipline->getName().'</td>';
+            echo '</tr>';
+
+            $team = Team::get($teamId);
+            echo '<tr>';
+            echo '<th>TEAM</th>';
+            echo '<td>'.$team->getName().'</td>';
             echo '</tr>';
 
             ?>
 
             </div>
             </table>
+
+            <div class="form-group">
+                <table class="table table-striped">
+            <?php
+
+                $shooters = Shooter::getAllByPassNr($user->getUsrCode());
+                echo "<tr>";
+                echo "<th>Schütze</th>";
+                echo "<th>Name</th>";
+                echo "<th>Ergebnis</th>";
+                echo "</tr>";
+
+                for($i=1; $i < 4; $i++) {
+                    echo "<tr>";
+                    echo "<td>".$i."</td>";
+                    echo "<td><select>";
+                    echo "<option value=''>Schütze auswählen</option>";
+                    foreach ($shooters as $shooter)
+                    {
+                        echo "<option value='".$shooter->getPassNr()."'>".$shooter->getName()."</option>";
+                    }
+                    echo "</select></td>";
+                    echo "<td><input class='shooterResult' type='number'/></td>";
+                    echo "</tr>";
+                 }
+                 echo "<tr>";
+                 echo "<td></td>";
+                 echo "<td>Gesamt:</td>";
+                 echo "<td id='total'></td>";
+                 echo "</tr>";
+            ?>
+                </table>
+                <a class="btn btn-success" href="#"><i class="fa fa-x fa-plus"></i> Speichern</a>
+            </div>
         </div>
     </div>
 </section>
@@ -117,5 +180,15 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
 
 </section>
 
+<script type="text/javascript">
+                $("input").change(function(){
+                    var amount = 0;
+                    $(".shooterResult").each( function() {
+                        var val = parseFloat($(this)[0].value)
+                        if(val) amount += val;
+                    })
+                    $("#total").text(amount)
+                });
+            </script>
 </body>
 </html>

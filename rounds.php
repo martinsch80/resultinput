@@ -7,6 +7,7 @@
  */
 
 require "models/User.php";
+require "models/Discipline.php";
 require "models/Round.php";
 
 //Worker::deleteCredentialsFromSession();
@@ -75,11 +76,28 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
         <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
             <p class="text-center"><strong>Runden</strong></p>
 
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Runde</li>
+                    <li class="breadcrumb-item">Gilde</li>
+                    <li class="breadcrumb-item" aria-current="page">Team</li>
+                    <li class="breadcrumb-item">Ergebniseingabe</li>
+                </ol>
+            </nav>
+
+
             <div class="form-group">
                 <table class="table table-striped">
             <?php
 
             $rounds = Round::getAllByDistrictAndDiscipline($discrictId, $disciplineId);
+
+            $discipline = Discipline::get($disciplineId);
+            echo '<tr>';
+            echo '<th>DISZIPLIN</th>';
+            echo '<td>'.$discipline->getName().'</td>';
+            echo '</tr>';
 
            
                 echo "<tr>";
@@ -88,7 +106,6 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
                 echo "<th>Start</th>";
                 echo "<th>Ende</th>";
                 echo "<th>Auswählen</th>";
-                echo "<th></th>";
                 echo "</tr>";
                 foreach ($rounds as $round)
                 {
@@ -98,8 +115,7 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
                 echo "<td>" . $round->getStart() ."</td>";
                 echo "<td>" . $round->getStop() ."</td>";
                 echo "<td>";
-                echo '<a class="btn btn-info" href="view_discipline.php?id=' . $round->getId() . '"><i class="fa fa-x fa-eye"></i>Details</a>';
-                echo '<a class="btn btn-success" href="round_input.php?disciplineId='.$disciplineId.'&roundId=' . $round->getId() . '"><i class="fa fa-x fa-pencil"></i>Select</a>';
+                echo '<a class="btn btn-success" href="teams.php?disciplineId='.$disciplineId.'&roundId=' . $round->getId() . '"><i class="fa fa-x fa-pencil"></i>Select</a>';
                 echo "&nbsp";
                 echo "</td>";
                 echo "</tr>";
