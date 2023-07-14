@@ -6,6 +6,8 @@
  * Time: 20:06
  */
 
+include('Html.php');
+
 require "models/User.php";
 require "models/Discipline.php";
 require "models/Round.php";
@@ -57,40 +59,42 @@ if(isset($_GET['teamId']))
 }
 
 $teamResult = TeamResults::get(21621);
-print_r(serialize($teamResult));
 
 $discrictId = substr($user->getUsrCode(), 0, 3);
+
+
+echo '<html>';
+renderHeader("Ergebnisseingabe");
+echo '<body>';
+
 ?>
-
-<html>
-<head>
-    <title>Runden</title>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="css/indexStyle.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
-</head>
-<body>
-
-
-
-
-
-<style>
-    .row{margin-top:10%}
-</style>
 <section class="container-fluid">
     <div class="row justify-content-center  ">
-        <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
-            <p class="text-center"><strong>Ergebnisseingabe</strong></p>
+        <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
+            
+
+            
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col col-lg-2 col-md-4">
+                        <strong>Saison: 
+                            <select>
+                                <option>2023 / 2024</option>
+                                <option>2023</option>
+                                <option>2022 / 2023</option>
+                                <option>2022</option>
+                                <option>2021 / 2022</option>                        
+                            </select>
+                        </strong>   
+                    </div> 
+                    <div class="col">
+                    <p class="text-center"><strong>Ergebnisseingabe</strong></p>
+                    </div>
+                    <div class="col col-lg-1">
+                    <p class="text-center"><i class="fa fa-x fa-info"></i></p>
+                    </div>
+                </div>
+            </div>
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -107,88 +111,94 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
                 <table class="table table-striped">
             <?php
 
-            $discipline = Discipline::get($disciplineId);
-            $round = Round::get($roundId);
-
+            $round = Round::get($roundId);     
+            infoTableRow("RUNDE", $round->getRound());
             
-            echo '<tr>';
-            echo '<th>RUNDE</th>';
-            echo '<td>'.$round->getRound().'</td>';
-            echo '</tr>';
-
-            $discipline = Discipline::get($disciplineId);
-            echo '<tr>';
-            echo '<th>DISZIPLIN</th>';
-            echo '<td>'.$discipline->getName().'</td>';
-            echo '</tr>';
+            $discipline = Discipline::get($disciplineId);            
+            infoTableRow("DISZIPLIN", $discipline->getName());
 
             $team = Team::get($teamId);
-            echo '<tr>';
-            echo '<th>TEAM</th>';
-            echo '<td>'.$team->getName().'</td>';
-            echo '</tr>';
+            infoTableRow("TEAM", $team->getName());
+
+            
+            $shooters = Shooter::getAllByPassNr($user->getUsrCode());
 
             ?>
 
             </div>
             </table>
 
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col col-lg-2 col-md-4">
+                    Schütze
+                    </div> 
+                    <div class="col">
+                    Column
+                    </div>
+                    <div class="col col-lg-2 col-md-4">
+                    Column
+                    </div>
+                </div>
+            </div>
+
+
             <div class="form-group">
                 <table class="table table-striped">
             <?php
 
-                $shooters = Shooter::getAllByPassNr($user->getUsrCode());
                 echo "<tr>";
                 echo "<th>Schütze</th>";
                 echo "<th>Name</th>";
                 echo "<th>Ergebnis</th>";
                 echo "</tr>";
 
-                for($i=1; $i < 4; $i++) {
+                for($i=1; $i <= $discipline->getPsize(); $i++) {
                     echo "<tr>";
                     echo "<td>".$i."</td>";
                     echo "<td><select>";
                     echo "<option value=''>Schütze auswählen</option>";
                     foreach ($shooters as $shooter)
                     {
-                        echo "<option value='".$shooter->getPassNr()."'>".$shooter->getName()."</option>";
+                        echo "<option ";
+                        if($teamResult->getShooterNr($i, $teamId) == $shooter->getPassNr()) echo "selected ";                        
+                        echo "value='".$shooter->getPassNr()."'>".$shooter->getName()."</option>";
                     }
                     echo "</select></td>";
-                    echo "<td><input class='shooterResult' type='number'/></td>";
+                    echo "<td><input class='shooterResult' type='number' value='".$teamResult->getShooterResult($i, $teamId)."'/></td>";
                     echo "</tr>";
                  }
                  echo "<tr>";
                  echo "<td></td>";
                  echo "<td>Gesamt:</td>";
-                 echo "<td id='total'></td>";
+                 echo "<td id='total'>".$teamResult->getTeamResult($teamId)."</td>";
                  echo "</tr>";
             ?>
                 </table>
                 <a class="btn btn-success" href="#"><i class="fa fa-x fa-plus"></i> Speichern</a>
+                <?=backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)?>
             </div>
         </div>
     </div>
 </section>
 
-<section class="col-12 text-center">
-    <form action="login.php" type="GET">
-
-        <input type="submit"  name="" value="Logout" class="btn btn-dark">
-        <input type="hidden" name="logoff" value="y">
-
-    </form>
-
-</section>
 
 <script type="text/javascript">
-                $("input").change(function(){
-                    var amount = 0;
-                    $(".shooterResult").each( function() {
-                        var val = parseFloat($(this)[0].value)
-                        if(val) amount += val;
-                    })
-                    $("#total").text(amount)
-                });
-            </script>
-</body>
-</html>
+    $("input").change(function(){
+        var amount = 0;
+        $(".shooterResult").each( function() {
+            var val = parseFloat($(this)[0].value)
+            if(val) amount += val;
+        })
+        $("#total").text(amount)
+    });
+</script>
+<?php
+
+    renderLogoutSection();
+    echo '</body>';
+    echo '</html>';
+?>
+
+
+

@@ -6,6 +6,9 @@
  * Time: 20:06
  */
 
+ 
+include('Html.php');
+
 require "models/User.php";
 require "models/Discipline.php";
 
@@ -37,37 +40,28 @@ else
     exit();
 }
 
-
+echo '<html>';
+renderHeader("Disziplinen");
+echo '<body>';
 ?>
 
-<html>
-<head>
-    <title>Diszipline</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="css/indexStyle.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
-</head>
-<body>
-
-
-
-
-
 <style>
-    .row{margin-top:10%}
+    .tab{
+        display: none;
+    }
 </style>
+
+<script>
+    function display(name) {
+        document.getElementById('winter').style.display = 'none';
+        document.getElementById('summer').style.display = 'none';
+        document.getElementById(name).style.display = 'block';
+    }
+</script>
+
 <section class="container-fluid">
     <div class="row justify-content-center  ">
-        <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
+        <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-content" >
             <p class="text-center"><strong>Disziplinen</strong></p>
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -80,53 +74,67 @@ else
                 </ol>
             </nav>
 
-            
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#WinterBewerbe" data-toggle="tab" onclick="javascript:display('winter');">Winterbewerbe</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#SomerBewerbe" data-toggle="tab" onclick="javascript:display('summer');">Somerbewerbe</a>
+                </li>
+            </ul>
 
-            <div class="form-group">
+            <div id="winter">
                 <table class="table table-striped">
+                    <?php
+                        $disziplines = Discipline::getBySeason("W");
+
+                        renderDisciplineTable($disziplines);
+                    ?>
+                </table>
+            </div>
+            <div id="summer" class="tab">
+                <table class="table table-striped">
+                    <?php
+                        $disziplines = Discipline::getBySeason("S");
+
+                        renderDisciplineTable($disziplines);
+                    ?>
+                </table>
+            </div>
             <?php
 
-            $disziplines = Discipline::getAll();
+            
 
-           
+            function renderDisciplineTable($disziplines){
                 echo "<tr>";
                 echo "<th>ID</th>";
                 echo "<th>Name</th>";
-                echo "<th>Sasison</th>";
                 echo "<th>Auswählen</th>";
                 echo "</tr>";
                 foreach ($disziplines as $diszipline)
                 {
-                echo "<tr>";
-                echo "<td>" . $diszipline->getId() ."</td>";
-                echo "<td>" . $diszipline->getName() ."</td>";                
-                echo "<td>" . $diszipline->getSeason() ."</td>";
-                echo "<td>";
-                echo '<a alt="Select" class="btn btn-success" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pincele"></i> SELECT</a>';
-                
-                echo "&nbsp";
-                echo "</td>";
-                echo "</tr>";
+                    echo "<tr>";
+                    echo '<a alt="Select" href="rounds.php?disciplineId=' . $diszipline->getId() . '">';
+                    echo "<td>" . $diszipline->getId() ."</td>";
+                    echo "<td>" . $diszipline->getName() ."</td>";     
+                    echo "<td>";
+                    echo '<a alt="Select" class="btn btn-success btn-sm" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pincele"></i> SELECT</a>'; 
+                    echo "</td>";
+                    echo "</a>";
+                    echo "</tr>";
 
+                }
             }
+                
 
             ?>
-
-            </div>
-            </table>
         </div>
     </div>
 </section>
 
-<section class="col-12 text-center">
-    <form action="login.php" type="GET">
+<?php
 
-        <input type="submit"  name="" value="Logout" class="btn btn-dark">
-        <input type="hidden" name="logoff" value="y">
-
-    </form>
-
-</section>
-
-</body>
-</html>
+    renderLogoutSection();
+    echo '</body>';
+    echo '</html>';
+?>

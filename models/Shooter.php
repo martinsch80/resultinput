@@ -115,6 +115,28 @@ class Shooter implements DatabaseService
         return $list;
     }
 
+    public static function getAllByPassNrAnd($passNr,){
+        $list = [];
+
+        $db = Database::connect();
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_PASSNR.' like :passNr ORDER BY name ASC';
+        $stmt=$db->prepare($sql);
+        $passNr = "$passNr%";
+        $stmt->bindParam(':passNr', $passNr);
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        //$dataForDuration = Project::getDuration();
+
+        Database::disconnect();
+
+        foreach ($data as $obj) {
+            $list[] = self::dataToObject($obj);
+        }
+
+        return $list;
+    }
+
     public function update(){
         // not Implemented;
     }

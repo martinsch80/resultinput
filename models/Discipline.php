@@ -13,20 +13,23 @@ class Discipline implements DatabaseService
     const COLUMN_NAME = "disc_name";
     const COLUMN_WEAPON = "weapon";
     const COLUMN_SEASON = "season_state";
+    const COLUMN_PSIZE = "s_t";
 
     private $id;
     private $name;
     private $weapon;
     private $season;
+    private $psize;
 
     private $errors;
 
-    public function __construct($id, $name, $weapon, $season)
+    public function __construct($id, $name, $weapon, $season, $psize)
     {
         $this->id = $id;
         $this->name = $name;
         $this->weapon = $weapon;
         $this->season = $season;
+        $this->psize = $psize;
 
         $this->errors = [];
     }
@@ -54,6 +57,31 @@ class Discipline implements DatabaseService
 
         return $list;
     }
+
+    public static function getBySeason($season)
+    {
+        // TODO: Implement getAll() method.
+        $list = [];
+
+        $db = Database::connect();
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_SEASON.' = :season AND active = 1 ORDER BY position ASC, '.self::COLUMN_SEASON.' ASC';
+        $stmt=$db->prepare($sql);
+        $stmt->bindParam(':season', $season);
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        //$dataForDuration = Project::getDuration();
+
+        Database::disconnect();
+
+        foreach ($data as $obj) {
+            $list[] = self::dataToObject($obj);
+        }
+
+        return $list;
+    }
+
+    
 
     public function update(){
         // not Implemented;
@@ -83,7 +111,12 @@ class Discipline implements DatabaseService
     }
 
     public static function dataToObject($obj){
-        return new Discipline($obj[self::COLUMN_ID], $obj[self::COLUMN_NAME], $obj[self::COLUMN_WEAPON], $obj[self::COLUMN_SEASON] );
+        return new Discipline(
+            $obj[self::COLUMN_ID], 
+            $obj[self::COLUMN_NAME], 
+            $obj[self::COLUMN_WEAPON], 
+            $obj[self::COLUMN_SEASON],
+            $obj[self::COLUMN_PSIZE] );
     }
 
     /**
@@ -148,6 +181,22 @@ class Discipline implements DatabaseService
     public function setWeapon($weapon)
     {
         $this->weapon = $weapon;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPsize()
+    {
+        return $this->psize;
+    }
+
+    /**
+     * @param mixed $psize
+     */
+    public function setPsize($psize)
+    {
+        $this->psize = $psize;
     }
 
     /**

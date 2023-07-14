@@ -269,6 +269,35 @@ class TeamResults implements DatabaseService
         );
     }
 
+    public function getShooterNr($index, $teamId){
+        if($teamId == $this->homeTeamId){
+            $ids = [$this->t1P1Number, $this->t1P2Number, $this->t1P3Number, $this->t1P4Number, $this->t1P5Number];
+        }
+        else{
+            $ids = [$this->t2P1Number, $this->t2P2Number, $this->t2P3Number, $this->t2P4Number, $this->t2P5Number];
+        }
+        return $ids[$index -1];
+    }
+
+    public function getShooterResult($index, $teamId){
+        if($teamId == $this->homeTeamId){
+            $ids = [$this->t1P1Result, $this->t1P2Result, $this->t1P3Result, $this->t1P4Result, $this->t1P5Result];
+        }
+        else{
+            $ids = [$this->t2P1Result, $this->t2P2Result, $this->t2P3Result, $this->t2P4Result, $this->t2P5Result];
+        }
+        return $ids[$index -1];
+    }
+
+    public function getTeamResult($teamId){
+        if($teamId == $this->homeTeamId){
+            return $this->homeTeamResult;
+        }
+        else{
+            return $this->guestTeamResult;
+        }        
+    }
+
     /**
      * @return mixed
      */
