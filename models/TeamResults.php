@@ -190,6 +190,32 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
+    public static function getBySeasonAndTeamIdAndRoundId($season, $roundId, $teamId)
+    {
+        // TODO: Implement getAll() method.
+        $list = [];
+        //Round_id = 31 AND SEASON = '2022 / 2023' AND (hometeam_id = 171 OR guestteam_id = 171)
+        $db = Database::connect();
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $stmt=$db->prepare($sql);
+        
+        $stmt->bindParam(':season', $season);
+        $stmt->bindParam(':roundId', $roundId);
+        $stmt->bindParam(':teamId', $teamId);
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        //$dataForDuration = Project::getDuration();
+
+        Database::disconnect();
+
+        foreach ($data as $obj) {
+            $list[] = self::dataToObject($obj);
+        }
+
+        return $list;
+    }
+
     public function update(){
         // not Implemented;
     }
@@ -204,9 +230,10 @@ class TeamResults implements DatabaseService
     {
         // TODO: Implement get() method.
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_ID.' = ?';
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_ID.' = :id';
         $stmt=$db->prepare($sql);
-        $stmt->execute(array($id));
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
@@ -312,6 +339,40 @@ class TeamResults implements DatabaseService
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getHomeTeamId()
+    {
+        return $this->homeTeamId;
+    }
+
+    /**
+     * @param mixed $homeTeamId
+     */
+    public function setHomeTeamId($homeTeamId)
+    {
+        $this->homeTeamId = $homeTeamId;
+    }
+
+    
+    /**
+     * @return mixed
+     */
+    public function getGuestTeamId()
+    {
+        return $this->guestTeamId;
+    }
+
+    /**
+     * @param mixed $guestTeamId
+     */
+    public function setGuestTeamId($guestTeamId)
+    {
+        $this->guestTeamId = $guestTeamId;
     }
 
     

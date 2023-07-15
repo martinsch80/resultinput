@@ -58,8 +58,7 @@ if(isset($_GET['teamId']))
     $teamId = $_GET['teamId'];
 }
 
-$teamResult = TeamResults::get(21621);
-
+$teamResult = TeamResults::getBySeasonAndTeamIdAndRoundId("2022 / 2023",  $roundId, $teamId)[0];
 $discrictId = substr($user->getUsrCode(), 0, 3);
 
 
@@ -120,8 +119,22 @@ echo '<body>';
             $team = Team::get($teamId);
             infoTableRow("TEAM", $team->getName());
 
-            
-            $shooters = Shooter::getAllByPassNr($user->getUsrCode());
+            $homeTeamId = $teamResult->getHomeTeamId();
+            $guaestTeamId = $teamResult->getGuestTeamId();
+            $homeTeam = Team::get($homeTeamId);
+            if($guaestTeamId){
+                $guaestTeam = Team::get($guaestTeamId);
+                $guestTeamName = $guaestTeam->getName();
+            }
+            else{
+                $guestTeamName = "Freilos";
+            }
+            $visit =  $homeTeam->getName() . " vs " . $guestTeamName ;
+
+            infoTableRow("Begegnung", $visit);
+
+
+            $shooters = Shooter::getAllByPassNr($homeTeam->getCode());
 
             ?>
 
@@ -130,19 +143,19 @@ echo '<body>';
 
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col col-lg-2 col-md-4">
+                    <div class="col-12 col-md-4">
                     Schütze
                     </div> 
-                    <div class="col">
-                    Column
+                    <div class="col-12 col-md-4">
+                    Name
                     </div>
-                    <div class="col col-lg-2 col-md-4">
-                    Column
+                    <div class="col-12 col-md-4">
+                    Ergebnis
                     </div>
                 </div>
             </div>
 
-
+            <p class="text-center"><strong>HOME: <?=$homeTeam->getName()?></strong></p>
             <div class="form-group">
                 <table class="table table-striped">
             <?php
@@ -161,20 +174,59 @@ echo '<body>';
                     foreach ($shooters as $shooter)
                     {
                         echo "<option ";
-                        if($teamResult->getShooterNr($i, $teamId) == $shooter->getPassNr()) echo "selected ";                        
+                        if($teamResult->getShooterNr($i, $homeTeamId) == $shooter->getPassNr()) echo "selected ";                        
                         echo "value='".$shooter->getPassNr()."'>".$shooter->getName()."</option>";
                     }
                     echo "</select></td>";
-                    echo "<td><input class='shooterResult' type='number' value='".$teamResult->getShooterResult($i, $teamId)."'/></td>";
+                    echo "<td><input class='shooterResult' type='number' value='".$teamResult->getShooterResult($i, $homeTeamId)."'/></td>";
                     echo "</tr>";
                  }
                  echo "<tr>";
                  echo "<td></td>";
                  echo "<td>Gesamt:</td>";
-                 echo "<td id='total'>".$teamResult->getTeamResult($teamId)."</td>";
+                 echo "<td id='total'>".$teamResult->getTeamResult($homeTeamId)."</td>";
                  echo "</tr>";
             ?>
                 </table>
+            <?php
+            if( $guaestTeamId){
+                $shooters = Shooter::getAllByPassNr($guaestTeam->getCode());
+                ?>
+                <p class="text-center"><strong>Gäste: <?=$guaestTeam->getName()?></strong></p>
+            <div class="form-group">
+                <table class="table table-striped">
+            <?php
+
+                echo "<tr>";
+                echo "<th>Schütze</th>";
+                echo "<th>Name</th>";
+                echo "<th>Ergebnis</th>";
+                echo "</tr>";
+
+                for($i=1; $i <= $discipline->getPsize(); $i++) {
+                    echo "<tr>";
+                    echo "<td>".$i."</td>";
+                    echo "<td><select>";
+                    echo "<option value=''>Schütze auswählen</option>";
+                    foreach ($shooters as $shooter)
+                    {
+                        echo "<option ";
+                        if($teamResult->getShooterNr($i,  $guaestTeamId) == $shooter->getPassNr()) echo "selected ";                        
+                        echo "value='".$shooter->getPassNr()."'>".$shooter->getName()."</option>";
+                    }
+                    echo "</select></td>";
+                    echo "<td><input class='shooterResult' type='number' value='".$teamResult->getShooterResult($i,  $guaestTeamId)."'/></td>";
+                    echo "</tr>";
+                 }
+                 echo "<tr>";
+                 echo "<td></td>";
+                 echo "<td>Gesamt:</td>";
+                 echo "<td id='total'>".$teamResult->getTeamResult( $guaestTeamId)."</td>";
+                 echo "</tr>";
+                echo "</table>";
+            }
+            ?>
+            
                 <a class="btn btn-success" href="#"><i class="fa fa-x fa-plus"></i> Speichern</a>
                 <?=backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)?>
             </div>
