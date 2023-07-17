@@ -93,7 +93,7 @@ class Shooter implements DatabaseService
         return $list;
     }
 
-    public static function getAllByPassNr($passNr,){
+    public static function getAllByPassNr($passNr){
         $list = [];
 
         $db = Database::connect();

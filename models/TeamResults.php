@@ -296,6 +296,113 @@ class TeamResults implements DatabaseService
         );
     }
 
+    public function setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults){
+        for ($i = 0; $i < count($homeTeamShooters); $i++) {
+            $this->setHomeTeamShooter($i+1, $homeTeamShooters[$i]);
+            $this->setHomeTeamResult($i+1, $homeTeamResults[$i]);
+        }
+
+        for ($i = 0; $i < count($guastTeamShooters); $i++) {
+            $this->setGuestTeamShooter($i+1, $guastTeamShooters[$i]);
+            $this->setGuestTeamResult($i+1, $guastTeamResults[$i]);
+        }
+        var_dump($this);
+    }   
+
+    private function setHomeTeamShooter($snumber, $shooterNr){
+        switch ($snumber) {
+            case 1:
+                $this->t1P1Number = $shooterNr;
+                break;
+            case 2:
+                $this->t1P2Number = $shooterNr;
+                break;
+            case 3:
+                $this->t1P3Number = $shooterNr;
+                break;
+            case 4:
+                $this->t1P4Number = $shooterNr;
+                break;
+            case 5:
+                $this->t1P5Number = $shooterNr;
+                break;
+            default:
+                # code...
+                break;
+        } 
+    }
+
+    private function setHomeTeamResult($snumber, $result){
+        switch ($snumber) {
+            case 1:
+                $this->t1P1Result = $result;
+                break;
+            case 2:
+                $this->t1P2Result = $result;
+                break;
+            case 3:
+                $this->t1P3Result = $result;
+                break;
+            case 4:
+                $this->t1P4Result = $result;
+                break;
+            case 5:
+                $this->t1P5Result = $result;
+                break;
+            default:
+                # code...
+                break;
+        } 
+    }
+
+    private function setGuestTeamShooter($snumber, $shooterNr){
+        switch ($snumber) {
+            case 1:
+                $this->t2P1Number = $shooterNr;
+                break;
+            case 2:
+                $this->t2P2Number = $shooterNr;
+                break;
+            case 3:
+                $this->t2P3Number = $shooterNr;
+                break;
+            case 4:
+                $this->t2P4Number = $shooterNr;
+                break;
+            case 5:
+                $this->t2P5Number = $shooterNr;
+                break;
+            default:
+                # code...
+                break;
+        } 
+    }
+
+    private function setGuestTeamResult($snumber, $result){
+        switch ($snumber) {
+            case 1:
+                $this->t2P1Result = $result;
+                break;
+            case 2:
+                $this->t2P2Result = $result;
+                break;
+            case 3:
+                $this->t2P3Result = $result;
+                break;
+            case 4:
+                $this->t2P4Result = $result;
+                break;
+            case 5:
+                $this->t2P5Result = $result;
+                break;
+            default:
+                # code...
+                break;
+        } 
+    }
+
+
+
     public function getShooterNr($index, $teamId){
         if($teamId == $this->homeTeamId){
             $ids = [$this->t1P1Number, $this->t1P2Number, $this->t1P3Number, $this->t1P4Number, $this->t1P5Number];
@@ -324,6 +431,11 @@ class TeamResults implements DatabaseService
             return $this->guestTeamResult;
         }        
     }
+
+    public function validate(){
+        return false;
+    }
+
 
     /**
      * @return mixed

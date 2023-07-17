@@ -1,4 +1,7 @@
 <?php
+function utf8_convert($string){
+    return mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');
+}
 
 function renderHeader($title){
 

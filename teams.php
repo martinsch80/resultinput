@@ -91,12 +91,12 @@ echo '<body>';
             $discipline = Discipline::get($disciplineId);
             echo '<tr>';
             echo '<th>DISZIPLIN</th>';
-            echo '<td>'.$discipline->getName().'</td>';
+            echo '<td>'.utf8_convert($discipline->getName()).'</td>';
             echo '</tr>';
 
             echo '<tr>';
             echo '<th>Gilde</th>';
-            echo '<td>'.$user->getUsrCode().'</td>';
+            echo '<td>'.utf8_convert($user->getUsrCode()).'</td>';
             echo '</tr>';
             ?>
             </table>
@@ -119,7 +119,7 @@ echo '<body>';
                 {
                     echo "<tr>";
                     echo "<td>" . $team->getId() ."</td>";
-                    echo "<td>" . $team->getName() ."</td>";                
+                    echo "<td>" . utf8_convert($team->getName()) ."</td>";                
                     echo "<td>" . $team->getClass() ."</td>";
                     echo "<td>" . $team->getDiscipline() ."</td>";
                     echo "<td>";
@@ -133,11 +133,10 @@ echo '<body>';
             else{
                 echo "Keine Mannschaftswertung";
             }
-
+            echo "</table>";
+            echo '<a class="btn btn-success" href="round_input_ezw.php?disciplineId='.$disciplineId.'&roundId='.$roundId.'"><i class="fa fa-x fa-plus"></i> Einzelschützen</a>';
             ?>
             
-            </table>
-            <a class="btn btn-success" href="#"><i class="fa fa-x fa-plus"></i> Einzelschützen</a>
         </div>
     </div>
 </section>

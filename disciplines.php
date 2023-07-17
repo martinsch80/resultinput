@@ -76,10 +76,10 @@ echo '<body>';
 
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#WinterBewerbe" data-toggle="tab" onclick="javascript:display('winter');">Winterbewerbe</a>
+                    <a class="nav-link active" href="#WinterBewerbe" data-toggle="tab" onclick="javascript:display('winter');"><strong>Winterbewerbe</strong></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#SomerBewerbe" data-toggle="tab" onclick="javascript:display('summer');">Somerbewerbe</a>
+                    <a class="nav-link" href="#SomerBewerbe" data-toggle="tab" onclick="javascript:display('summer');"><strong>Somerbewerbe</strong></a>
                 </li>
             </ul>
 
@@ -116,7 +116,7 @@ echo '<body>';
                     echo "<tr>";
                     echo '<a alt="Select" href="rounds.php?disciplineId=' . $diszipline->getId() . '">';
                     echo "<td>" . $diszipline->getId() ."</td>";
-                    echo "<td>" . $diszipline->getName() ."</td>";     
+                    echo "<td>" . utf8_convert($diszipline->getName()) ."</td>";     
                     echo "<td>";
                     echo '<a alt="Select" class="btn btn-success btn-sm" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pincele"></i> SELECT</a>'; 
                     echo "</td>";
