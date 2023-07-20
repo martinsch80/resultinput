@@ -225,6 +225,7 @@ return true;
     public static function deleteCredentialsFromSession()
     {
         unset($_SESSION['user']);
+        unset($_SESSION['saison']);
     }
 
     public function update()
@@ -381,6 +382,25 @@ return true;
     public function setRight($right)
     {
         $this->right = $right;
+    }
+
+      /**
+     * @return mixed
+     */
+    public function getRightAsString()
+    {        
+        switch ($this->right) {
+            case 0:
+                $rightasString = "Mannschaftsführer";
+                break;
+            case 1:
+                $rightasString = "Bezirkssportleiter";
+                break;
+            default:
+                $rightasString = "Administrator";
+                break;
+        }
+        return $rightasString;
     }
 
     /**

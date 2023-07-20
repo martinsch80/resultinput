@@ -1,4 +1,5 @@
 <?php
+session_start();
 /**
  * Created by PhpStorm.
  * User: paddy.
@@ -14,6 +15,7 @@ require "models/Round.php";
 require "models/Team.php";
 require "models/SingleResult.php";
 require "models/Shooter.php";
+require "models/Verein.php";
 
 //Worker::deleteCredentialsFromSession();
 //print_r($_SESSION['user']);
@@ -48,23 +50,52 @@ if(isset($_GET['disciplineId']))
     $disciplineId = $_GET['disciplineId'];
 }
 
+if(isset($_SESSION['saison']))
+{
+    $saison = $_SESSION['saison'];
+}
+
+if(isset($_SESSION['verein']))
+{
+    $verein = $_SESSION['verein'];
+}else{
+    $verein = $user->getUsrCode();
+}
+
 if(isset($_GET['roundId']))
 {
     $roundId = $_GET['roundId'];
 }
 
-$discrictId = substr($user->getUsrCode(), 0, 3);
-
-$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode("2022 / 2023", $roundId, $user->getUsrCode());
+$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundId, $verein);
 
 if(!empty($_POST))
 {
-    
+ 
+    $shooterNr = $_POST['shooter'];
+    $result = $_POST['result'];
+    var_dump($shooterNr);
+    var_dump($result);
+    die("TODO Create Single Result");
+
+    $singleResult =  new SingelResult(
+        null,
+        $roundId,
+        0,
+        $shooterNr,
+        $result,
+        0,
+        $saison,
+        $obj[self::COLUMN_CHANGEDATE],
+        $user->getId(),
+        $obj[self::COLUMN_SEASIONSTATE],
+        $disciplineId
+    );
    //$teamResult->setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults);
 
-    if($singleResults->validate())
+    if($singleResult->validate())
     {
-        $singleResults->update();
+        $singleResult->save();
     }
 }
 
@@ -73,35 +104,18 @@ echo '<html>';
 renderHeader("Ergebnisseingabe");
 echo '<body>';
 
+$discipline = Discipline::get($disciplineId); 
+
 ?>
 <section class="container-fluid">
     <div class="row justify-content-center  ">
         <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
             
-
+            <?php
+                headLine("Ergebnisseingabe Einzelwertung", $discipline, $saison);
+                userLine($user);
+            ?>
             
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col col-lg-2 col-md-4">
-                        <strong>Saison: 
-                            <select>
-                                <option>2023 / 2024</option>
-                                <option>2023</option>
-                                <option>2022 / 2023</option>
-                                <option>2022</option>
-                                <option>2021 / 2022</option>                        
-                            </select>
-                        </strong>   
-                    </div> 
-                    <div class="col">
-                    <p class="text-center"><strong>Ergebnisseingabe Einzelwertung</strong></p>
-                    </div>
-                    <div class="col col-lg-1">
-                    <p class="text-center"><i class="fa fa-x fa-info"></i></p>
-                    </div>
-                </div>
-            </div>
-
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
@@ -112,35 +126,35 @@ echo '<body>';
                 </ol>
             </nav>
 
-
-            <div class="form-group">
-                <table class="table table-striped">
             <?php
-
-            $round = Round::get($roundId);     
+            seasonSelector($discipline);
+            infoTableStart();
+            $round = Round::get($roundId);   
+            infoTableRow("Saison", $saison);  
             infoTableRow("RUNDE", $round->getRound());
             
-            $discipline = Discipline::get($disciplineId);            
+                       
             infoTableRow("DISZIPLIN", $discipline->getName());
 
-            infoTableRow("Gilde", $user->getUsrCode());
+            infoTableRow("Gilde", Verein::get( $verein)->getName());  
+            infoTableEnd();
 
-            $shooters = Shooter::getAllByPassNr($user->getUsrCode());
+            $shooters = Shooter::getAllByPassNr( $verein);
+
+            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now')?"":"disabled";
 
             ?>
 
-            </div>
-            </table>
             <form action="#" method="POST">
            
             <p class="text-center"><strong>Erfasste Ergebnisse</strong></p>
 
             <div class="container-fluid">
                 <div class="row"> 
-                    <div class="col-12 col-md-8">
+                    <div class="col-8 col-md-8">
                     Name
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-4 col-md-4">
                     Ergebnis
                     </div>
                 </div>
@@ -151,51 +165,43 @@ echo '<body>';
                     $shooter = Shooter::getAllByPassNr($singleResult->getNumber());
                     ?>
                     <div class="row"> 
-                        <div class="col-12 col-md-8">                        
+                        <div class="col-8 col-md-8">                        
                         <?= utf8_convert($shooter[0]->getName())?>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-4 col-md-4">
                         <?=$singleResult->getResult()?>
                         </div>
                     </div>
                     <?php
                 }
 
-                echo '<p class="text-center"><strong>Einzelwertungsergebnis hinzufügen</strong></p>';
+                if(empty($disabled)){
+                    echo '<p class="text-center"><strong>Einzelwertungsergebnis hinzufügen</strong></p>';
 
-                echo '<div class="row">'; 
-                echo "<div class='col-12 col-md-8'><select name='shooter'>";
-                echo "<option value=''>Schütze auswählen</option>";
-                foreach ($shooters as $shooter)
-                {
-                    echo "<option ";
-                    echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
+                    echo '<div class="row">'; 
+                    echo "<div class='col-8 col-md-8'><select class='shooterSelect form-control' name='shooter'>";
+                    echo "<option value=''>Schütze auswählen</option>";
+                    foreach ($shooters as $shooter)
+                    {
+                        echo "<option ";
+                        echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
+                    }
+                    echo "</select></div>";
+                    echo "<div class='col-4 col-md-4'><input name='result' class='shooterResult form-control' type='number' value=''/></div>";
+                    echo '</div><br/>';
+                    echo '<input  type="submit" class="btn btn-success" href="#" label="Hinzufügen"/>';
+
+                    echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
+                    echo '<input type="hidden" name="roundId" value="'.$roundId.'">';
                 }
-                echo "</select></div>";
-                echo "<div class='col-12 col-md-4'><input name='result' class='shooterResult' type='number' value=''/></div>";
-                echo '</div>';
-                echo '<input  type="submit" class="btn btn-success" href="#"/>';
-
-                echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
-                echo '<input type="hidden" name="roundId" value="'.$roundId.'">';
-                backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)?>
+                backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)
+                ?>
                 </div>
             </form>
         </div>
     </div>
 </section>
 
-
-<script type="text/javascript">
-    $("input").change(function(){
-        var amount = 0;
-        $(".shooterResult").each( function() {
-            var val = parseFloat($(this)[0].value)
-            if(val) amount += val;
-        })
-        $("#total").text(amount)
-    });
-</script>
 <?php
 
     renderLogoutSection();

@@ -19,7 +19,7 @@ class Database
         // One connection through whole application
         if (null == self::$conn) {
             try {
-                self::$conn = new PDO("mysql:host=" . self::$dbHost . ";" . "dbname=" . self::$dbName, self::$dbUsername, self::$dbUserPassword);
+                self::$conn = new PDO("mysql:host=" . self::$dbHost . ";" . "dbname=" . self::$dbName .";CharSet=utf8;", self::$dbUsername, self::$dbUserPassword);
             } catch (PDOException $e) {
                 die($e->getMessage());
             }

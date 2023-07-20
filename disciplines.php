@@ -1,4 +1,5 @@
 <?php
+session_start();
 /**
  * Created by PhpStorm.
  * User: paddy.
@@ -40,6 +41,7 @@ else
     exit();
 }
 
+
 echo '<html>';
 renderHeader("Disziplinen");
 echo '<body>';
@@ -61,8 +63,9 @@ echo '<body>';
 
 <section class="container-fluid">
     <div class="row justify-content-center  ">
-        <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-content" >
-            <p class="text-center"><strong>Disziplinen</strong></p>
+        <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-content" >            
+            <?=headLine("Disziplinen")?>
+            <?=userLine($user)?>
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -74,12 +77,17 @@ echo '<body>';
                 </ol>
             </nav>
 
+            <?php
+                
+
+            ?>
+
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a class="nav-link active" href="#WinterBewerbe" data-toggle="tab" onclick="javascript:display('winter');"><strong>Winterbewerbe</strong></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#SomerBewerbe" data-toggle="tab" onclick="javascript:display('summer');"><strong>Somerbewerbe</strong></a>
+                    <a class="nav-link" href="#SomerBewerbe" data-toggle="tab" onclick="javascript:display('summer');"><strong>Sommerbewerbe</strong></a>
                 </li>
             </ul>
 
@@ -107,9 +115,9 @@ echo '<body>';
 
             function renderDisciplineTable($disziplines){
                 echo "<tr>";
-                echo "<th>ID</th>";
+                echo "<th class='colID'>ID</th>";
                 echo "<th>Name</th>";
-                echo "<th>Auswählen</th>";
+                echo "<th class='colSelect'>Auswählen</th>";
                 echo "</tr>";
                 foreach ($disziplines as $diszipline)
                 {
@@ -118,7 +126,7 @@ echo '<body>';
                     echo "<td>" . $diszipline->getId() ."</td>";
                     echo "<td>" . utf8_convert($diszipline->getName()) ."</td>";     
                     echo "<td>";
-                    echo '<a alt="Select" class="btn btn-success btn-sm" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pincele"></i> SELECT</a>'; 
+                    echo '<a alt="Select" class="btn btn-success btn-sm" href="rounds.php?disciplineId=' . $diszipline->getId() . '"><i class="fa fa-x fa-pencil"></i>  SELECT</a>'; 
                     echo "</td>";
                     echo "</a>";
                     echo "</tr>";

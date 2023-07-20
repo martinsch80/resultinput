@@ -48,18 +48,6 @@ if(isset($_SESSION['saison']))
     $saison = $_SESSION['saison'];
 }
 
-if(isset($_GET['verein']))
-{
-    $_SESSION['verein'] = $_GET['verein'];
-}
-
-if(isset($_SESSION['verein']))
-{
-    $verein = $_SESSION['verein'];
-}else{
-    $verein = $user->getUsrCode();
-}
-
 if(isset($_GET['disciplineId']))
 {
     $disciplineId = $_GET['disciplineId'];
@@ -74,7 +62,7 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
 
 
 echo '<html>';
-renderHeader("Teams");
+renderHeader("Verein");
 echo '<body>';
 $discipline = Discipline::get($disciplineId);
 ?>
@@ -82,47 +70,51 @@ $discipline = Discipline::get($disciplineId);
 <section class="container-fluid">
     <div class="row justify-content-center  ">
         <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
-            <?=headLine("Team")?>
+            <?=headLine("Verein")?>
             <?=userLine($user)?>
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
                     <li class="breadcrumb-item"><a href="rounds.php?disciplineId=<?=$disciplineId?>">Runde</a></li>
-                    <li class="breadcrumb-item">Gilde</li>
-                    <li class="breadcrumb-item active" aria-current="page">Team</li>
+                    <li class="breadcrumb-item active" aria-current="page">Gilde</li>
+                    <li class="breadcrumb-item">Team</li>
                     <li class="breadcrumb-item">Ergebniseingabe</li>
                 </ol>
             </nav>
-            <?php           
-            $round = Round::get($roundId);
+
+            <?php
+
+           
+            $round = Round::get($roundId);   
             seasonSelector($discipline);
-            infoTableStart();   
+            infoTableStart();
             infoTableRow("Saison", $saison);  
             infoTableRow("DISZIPLIN", $discipline->getName());
-            infoTableRow("RUNDE", $round->getRound());                    
-            infoTableRow("Gilde", Verein::get($verein)->getName());
-            infoTableEnd();
+            infoTableRow("RUNDE", $round->getRound()); 
+            infoTableEnd();         
+
             ?>
+            
             <div class="form-group">
             <table class="table table-striped">
             <?php
 
-            $teams = Team::getByDisciplineAndCode($disciplineId, $verein);
+            $vereins = Verein::getByDistrictId($discrictId . "00");
 
-            if(count($teams)>0){
+            if(count($vereins)>0){
                 echo "<tr>";
                 echo "<th class='colID'>ID</th>";
                 echo "<th>Name</th>";
                 echo "<th class='colSelect'>Auswählen</th>";
                 echo "</tr>";
-                foreach ($teams as $team)
+                foreach ($vereins as $verein)
                 {
                     echo "<tr>";
-                    echo "<td>" . $team->getId() ."</td>";
-                    echo "<td>" . utf8_convert($team->getName()) ."</td>";       
+                    echo "<td>" . $verein->getId() ."</td>";
+                    echo "<td>" . utf8_convert($verein->getName()) ."</td>";       
                     echo "<td>";
-                    echo '<a class="btn btn-success" href="round_input.php?disciplineId='.$disciplineId.'&roundId='.$roundId.'&teamId=' . $team->getId() . '"><i class="fa fa-x fa-pincel"></i>Select</a>';
+                    echo '<a class="btn btn-success" href="teams.php?disciplineId='.$disciplineId.'&roundId='.$roundId.'&verein=' . $verein->getId() . '"><i class="fa fa-x fa-pincel"></i>Select</a>';
                     echo "&nbsp";
                     echo "</td>";
                     echo "</tr>";    
@@ -130,13 +122,11 @@ $discipline = Discipline::get($disciplineId);
             
             }
             else{
-                echo "Keine Mannschaftswertung";
+                echo "Keine Vereine gefunden";
             }
             echo "</table>";
-            echo '<a class="btn btn-success" href="round_input_ezw.php?disciplineId='.$disciplineId.'&roundId='.$roundId.'"><i class="fa fa-x fa-plus"></i> Einzelschützen</a>';
-            $backLink = "rounds.php?disciplineId=".$disciplineId;
-            if($user->getRight()>0) $backLink = "vereins.php?disciplineId=".$disciplineId.'&roundId='.$roundId;
-            backButton($backLink);
+            
+            backButton("rounds.php?disciplineId=".$disciplineId);
             ?>
             
         </div>

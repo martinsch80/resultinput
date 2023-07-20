@@ -18,3 +18,39 @@ label{
     font-size:15px;
 }
 
+.shooterResult{
+    width: 100px;
+    text-align: right;
+}
+
+.shooterSelect{
+    width: 100%;
+}
+
+.colID{
+    width: 80px;
+}
+
+.colSelect{
+    width: 110px;
+    text-align: center;
+}
+
+.logoffSection{
+    padding-top: 15px;
+}
+.colResult{
+    width: 120px;
+}
+
+.userInfoLine{
+    padding-bottom: 10px;
+}
+
+.infoTable{
+    padding:5px;
+}
+
+.infoTable > div:nth-of-type(odd){
+    background-color: rgba(0,0,0,.05);
+}

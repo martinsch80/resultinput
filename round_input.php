@@ -1,4 +1,5 @@
 <?php
+session_start();
 /**
  * Created by PhpStorm.
  * User: paddy.
@@ -14,6 +15,7 @@ require "models/Round.php";
 require "models/Team.php";
 require "models/TeamResults.php";
 require "models/Shooter.php";
+require "models/Verein.php";
 
 //Worker::deleteCredentialsFromSession();
 //print_r($_SESSION['user']);
@@ -48,6 +50,33 @@ if(isset($_GET['disciplineId']))
     $disciplineId = $_GET['disciplineId'];
 }
 
+$discipline = Discipline::get($disciplineId);
+
+
+if(isset($_SESSION['saison']))
+{
+    $saison = $_SESSION['saison'];
+}
+else{
+    $saison = date("Y");
+    if(strtolower($discipline->getSeason()) == "w"){
+        if(date("m")>8){
+            $saison = $saison . " / " . $saison+1;
+        }
+        else{
+            $saison = $saison-1 . " / " . $saison;
+        }
+    }
+    $_SESSION['saison'] = $saison;
+}
+
+if(isset($_SESSION['verein']))
+{
+    $verein = $_SESSION['verein'];
+}else{
+    $verein = $user->getUsrCode();
+}
+
 if(isset($_GET['roundId']))
 {
     $roundId = $_GET['roundId'];
@@ -58,7 +87,11 @@ if(isset($_GET['teamId']))
     $teamId = $_GET['teamId'];
 }
 
-$teamResult = TeamResults::getBySeasonAndTeamIdAndRoundId("2022 / 2023",  $roundId, $teamId)[0];
+$teamResults = TeamResults::getBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
+if(count($teamResults)>0){
+    $teamResult = $teamResults[0];
+}
+
 $discrictId = substr($user->getUsrCode(), 0, 3);
 
 if(!empty($_POST))
@@ -82,34 +115,17 @@ echo '<html>';
 renderHeader("Ergebnisseingabe");
 echo '<body>';
 
+
+
 ?>
 <section class="container-fluid">
     <div class="row justify-content-center  ">
         <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
             
-
-            
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col col-lg-2 col-md-4">
-                        <strong>Saison: 
-                            <select>
-                                <option>2023 / 2024</option>
-                                <option>2023</option>
-                                <option>2022 / 2023</option>
-                                <option>2022</option>
-                                <option>2021 / 2022</option>                        
-                            </select>
-                        </strong>   
-                    </div> 
-                    <div class="col">
-                    <p class="text-center"><strong>Ergebnisseingabe</strong></p>
-                    </div>
-                    <div class="col col-lg-1">
-                    <p class="text-center"><i class="fa fa-x fa-info"></i></p>
-                    </div>
-                </div>
-            </div>
+            <?php 
+            headLine("Ergebnisseingabe");
+            userLine($user);
+            ?>
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -126,11 +142,25 @@ echo '<body>';
                 <table class="table table-striped">
             <?php
 
-            $round = Round::get($roundId);     
-            infoTableRow("RUNDE", $round->getRound());
-            
-            $discipline = Discipline::get($disciplineId);            
+            if(!isset($teamResult)){
+                echo "Keine Begegnung für die gewählte Manschaft gefunden";
+                echo "<br/>";
+                echo "<br/>";
+                
+                backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId);
+                return;
+            }
+
+            seasonSelector($discipline);
+            infoTableStart();
+
+            $round = Round::get($roundId);    
+            infoTableRow("Saison", $saison);   
             infoTableRow("DISZIPLIN", $discipline->getName());
+            infoTableRow("RUNDE", $round->getRound());
+            infoTableRow("Eingabe", "Start: " . formatDateString($round->getStart()). " Ende: " . formatDateString($round->getStop()));
+            infoTableRow("Gilde", Verein::get( $verein)->getName()); 
+            infoTableEnd();           
 
             $homeTeamId = $teamResult->getHomeTeamId();
             $guaestTeamId = $teamResult->getGuestTeamId();
@@ -147,7 +177,9 @@ echo '<body>';
             infoTableRow("Begegnung", $visit);
 
 
-            $shooters = Shooter::getAllByPassNr($homeTeam->getCode());
+            $shooters = Shooter::getAllByPassNr($homeTeam->getCode(), $discipline->getWeapon());
+            
+            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now')?"":"disabled";
 
             ?>
 
@@ -157,34 +189,20 @@ echo '<body>';
            
             <p class="text-center"><strong>Heim: <?=utf8_convert($homeTeam->getName())?></strong></p>
 
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 col-md-4">
-                    Schütze
-                    </div> 
-                    <div class="col-12 col-md-4">
-                    Name
-                    </div>
-                    <div class="col-12 col-md-4">
-                    Ergebnis
-                    </div>
-                </div>
-            </div>
-
             <div class="form-group">
                 <table class="table table-striped">
             <?php
 
                 echo "<tr>";
-                echo "<th>Schütze</th>";
+                echo "<th class='colID'>Schütze</th>";
                 echo "<th>Name</th>";
-                echo "<th>Ergebnis</th>";
+                echo "<th class='colResult'>Ergebnis</th>";
                 echo "</tr>";
 
                 for($i=1; $i <= $discipline->getPsize(); $i++) {
                     echo "<tr>";
                     echo "<td>".$i."</td>";
-                    echo "<td><select name='homeTeamShooter[]'>";
+                    echo "<td><select ". $disabled ." class='shooterSelect form-control' name='homeTeamShooter[]'>";
                     echo "<option value=''>Schütze auswählen</option>";
                     foreach ($shooters as $shooter)
                     {
@@ -193,19 +211,19 @@ echo '<body>';
                         echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                     }
                     echo "</select></td>";
-                    echo "<td><input name='homeTeamResult[]' class='shooterResult' type='number' value='".$teamResult->getShooterResult($i, $homeTeamId)."'/></td>";
-                    echo "</tr>";
+                    echo "<td><input name='homeTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number' value='".$teamResult->getShooterResult($i, $homeTeamId)."'/></td>";
+                    echo "</tr>"; 
                  }
                  echo "<tr>";
                  echo "<td></td>";
-                 echo "<td>Gesamt:</td>";
-                 echo "<td id='total'>".$teamResult->getTeamResult($homeTeamId)."</td>";
+                 echo "<td><strong>Gesamt:</strong></td>";
+                 echo "<td id='total' class='shooterResult'><strong>".$teamResult->getTeamResult($homeTeamId)."</strong></td>";
                  echo "</tr>";
             ?>
                 </table>
             <?php
             if( $guaestTeamId){
-                $shooters = Shooter::getAllByPassNr($guaestTeam->getCode());
+                $shooters = Shooter::getAllByPassNr($guaestTeam->getCode(), $discipline->getWeapon());
                 ?>
                 <p class="text-center"><strong>Gast: <?=utf8_convert($guaestTeam->getName())?></strong></p>
             <div class="form-group">
@@ -213,15 +231,15 @@ echo '<body>';
             <?php
 
                 echo "<tr>";
-                echo "<th>Schütze</th>";
+                echo "<th class='colID'>Schütze</th>";
                 echo "<th>Name</th>";
-                echo "<th>Ergebnis</th>";
+                echo "<th class='colResult'>Ergebnis</th>";
                 echo "</tr>";
 
                 for($i=1; $i <= $discipline->getPsize(); $i++) {
                     echo "<tr>";
                     echo "<td>".$i."</td>";
-                    echo "<td><select name='guastTeamShooter[]'>";
+                    echo "<td><select ". $disabled ." class='shooterSelect form-control' name='guastTeamShooter[]'>";
                     echo "<option value=''>Schütze auswählen</option>";
                     foreach ($shooters as $shooter)
                     {
@@ -230,23 +248,25 @@ echo '<body>';
                         echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                     }
                     echo "</select></td>";
-                    echo "<td><input name='guastTeamResult[]' class='shooterResult' type='number' value='".$teamResult->getShooterResult($i,  $guaestTeamId)."'/></td>";
+                    echo "<td><input name='guastTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number' value='".$teamResult->getShooterResult($i,  $guaestTeamId)."'/></td>";
                     echo "</tr>";
                  }
                  echo "<tr>";
                  echo "<td></td>";
-                 echo "<td>Gesamt:</td>";
-                 echo "<td id='total'>".$teamResult->getTeamResult( $guaestTeamId)."</td>";
+                 echo "<td><strong>Gesamt:</strong></td>";
+                 echo "<td id='total' class='shooterResult'><strong>".$teamResult->getTeamResult( $guaestTeamId)."</strong></td>";
                  echo "</tr>";
                 echo "</table>";
             }
-            
-                echo '<input  type="submit" class="btn btn-success" href="#"/>';
+                if(empty($disabled)){
+                    echo '<input  type="submit" class="btn btn-success" href="#"/>';
+                }
 
                 echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
                 echo '<input type="hidden" name="roundId" value="'.$roundId.'">';
                 echo '<input type="hidden" name="teamId" value="'.$teamId.'">';
-                backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)?>
+                backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId);
+                ?>
                 </div>
             </form>
         </div>

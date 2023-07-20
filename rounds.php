@@ -1,4 +1,5 @@
 <?php
+session_start();
 /**
  * Created by PhpStorm.
  * User: paddy.
@@ -40,6 +41,8 @@ else
     exit();
 }
 
+
+
 if(isset($_GET['disciplineId']))
 {
     $disciplineId = $_GET['disciplineId'];
@@ -51,13 +54,33 @@ $discrictId = substr($user->getUsrCode(), 0, 3);
 echo '<html>';
 renderHeader("Runden");
 echo '<body>';
+$discipline = Discipline::get($disciplineId);
 
+if(isset($_SESSION['saison']))
+{
+    $saison = $_SESSION['saison'];
+}
+else{
+    $saison = date("Y");
+    if(strtolower($discipline->getSeason()) == "w"){
+        if(date("m")>8){
+            $saison = $saison . " / " . $saison+1;
+        }
+        else{
+            $saison = $saison-1 . " / " . $saison;
+        }
+    }
+    $_SESSION['saison'] = $saison;
+}
 ?>
 
 <section class="container-fluid">
     <div class="row justify-content-center  ">
-        <div class="col-8 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
-            <p class="text-center"><strong>Runden</strong></p>
+        <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
+            <?php
+                headLine("Runden");
+                userLine($user);
+            ?>   
 
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -69,46 +92,55 @@ echo '<body>';
                 </ol>
             </nav>
 
-
+            <?php 
+            
+            seasonSelector($discipline);
+            infoTableStart();
+            infoTableRow("Saison", $saison);  
+            infoTableRow("DISZIPLIN", $discipline->getName());
+            infoTableEnd();
+            ?>
             <div class="form-group">
                 <table class="table table-striped">
             <?php
 
+
             $rounds = Round::getAllByDistrictAndDiscipline($discrictId, $disciplineId);
 
-            $discipline = Discipline::get($disciplineId);
-            echo '<tr>';
-            echo '<th>DISZIPLIN</th>';
-            echo '<td>'.$discipline->getName().'</td>';
-            echo '</tr>';
-
-           
-                echo "<tr>";
-                echo "<th>ID</th>";
-                echo "<th>Runde</th>";
-                echo "<th>Start</th>";
-                echo "<th>Ende</th>";
-                echo "<th>Auswählen</th>";
-                echo "</tr>";
-                foreach ($rounds as $round)
-                {
-                echo "<tr>";
-                echo "<td>" . $round->getId() ."</td>";
-                echo "<td>Runde " . $round->getRound() ."</td>";                
-                echo "<td>" . $round->getStart() ."</td>";
-                echo "<td>" . $round->getStop() ."</td>";
-                echo "<td>";
-                echo '<a class="btn btn-success" href="teams.php?disciplineId='.$disciplineId.'&roundId=' . $round->getId() . '"><i class="fa fa-x fa-pencil"></i>Select</a>';
-                echo "&nbsp";
-                echo "</td>";
-                echo "</tr>";
-
+            $selectLink = 'teams.php';
+            if($user->getRight() == 1){
+                $selectLink = 'vereins.php';
             }
+            $selectLink .= '?disciplineId='.$disciplineId.'&roundId=';
 
+            echo '</table>';
+            echo '<table class="table table-striped">';
+
+            echo "<tr>";
+            echo "<th class='colID'>ID</th>";
+            echo "<th>Runde</th>";
+            echo "<th class='colSelect'>Auswählen</th>";
+            echo "</tr>";
+            foreach ($rounds as $round)
+            {
+            echo "<tr>";
+            echo "<td>" . $round->getId() ."</td>";
+            echo "<td><strong>Runde " . $round->getRound() ."</strong><br/>";                
+            echo "Start: " . $round->getStart() ."<br/>";
+            echo "Ende: " . $round->getStop() ."</td>";
+            echo "<td>";
+            if(true || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now'))  {
+                echo '<a class="btn btn-success" href="'.$selectLink . $round->getId().'"><i class="fa fa-x fa-pencil"></i> Select</a>';
+            }
+            echo "&nbsp";
+            echo "</td>";
+            echo "</tr>";
+            
+            }
+            echo "</div>";
+            echo "</table>";        
+            backButton("disciplines.php");
             ?>
-
-            </div>
-            </table>
         </div>
     </div>
 </section>

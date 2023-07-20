@@ -1,5 +1,5 @@
 <?php
-//session_start();
+session_start();
 /**
  * Created by PhpStorm.
  * User: paddy.
@@ -80,7 +80,7 @@ if(isset($_POST['submit']))
 <section class="container-fluid">
     <div class="row justify-content-center  ">
 
-        <div class="col-6 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
+        <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-Login" >
             <p class="text-center"><strong><?php
                     if(isset($incomingWorker))
                     {
