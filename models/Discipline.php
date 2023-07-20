@@ -14,22 +14,25 @@ class Discipline implements DatabaseService
     const COLUMN_WEAPON = "weapon";
     const COLUMN_SEASON = "season_state";
     const COLUMN_PSIZE = "s_t";
+    const COLUMN_RESULT_RANGE = "result_range";
 
     private $id;
     private $name;
     private $weapon;
     private $season;
     private $psize;
+    private $resultRange;
 
     private $errors;
 
-    public function __construct($id, $name, $weapon, $season, $psize)
+    public function __construct($id, $name, $weapon, $season, $psize, $resultRange)
     {
         $this->id = $id;
         $this->name = $name;
         $this->weapon = $weapon;
         $this->season = $season;
         $this->psize = $psize;
+        $this->resultRange = $resultRange;
 
         $this->errors = [];
     }
@@ -116,7 +119,9 @@ class Discipline implements DatabaseService
             $obj[self::COLUMN_NAME], 
             $obj[self::COLUMN_WEAPON], 
             $obj[self::COLUMN_SEASON],
-            $obj[self::COLUMN_PSIZE] );
+            $obj[self::COLUMN_PSIZE],
+            $obj[self::COLUMN_RESULT_RANGE]
+         );
     }
 
     /**
@@ -197,6 +202,22 @@ class Discipline implements DatabaseService
     public function setPsize($psize)
     {
         $this->psize = $psize;
+    }
+
+     /**
+     * @return mixed
+     */
+    public function getResultRange()
+    {
+        return $this->resultRange;
+    }
+
+    /**
+     * @param mixed $resultRange
+     */
+    public function setResultRange($resultRange)
+    {
+        $this->resultRange = $resultRange;
     }
 
     /**

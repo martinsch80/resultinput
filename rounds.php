@@ -80,19 +80,7 @@ else{
             <?php
                 headLine("Runden");
                 userLine($user);
-            ?>   
-
-            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Runde</li>
-                    <li class="breadcrumb-item">Gilde</li>
-                    <li class="breadcrumb-item" aria-current="page">Team</li>
-                    <li class="breadcrumb-item">Ergebniseingabe</li>
-                </ol>
-            </nav>
-
-            <?php 
+                crumbBar(2, $user->getRight()>0, $disciplineId);
             
             seasonSelector($discipline);
             infoTableStart();
@@ -126,8 +114,8 @@ else{
             echo "<tr>";
             echo "<td>" . $round->getId() ."</td>";
             echo "<td><strong>Runde " . $round->getRound() ."</strong><br/>";                
-            echo "Start: " . $round->getStart() ."<br/>";
-            echo "Ende: " . $round->getStop() ."</td>";
+            echo "Start: " . formatDateString($round->getStart()) ."<br/>";
+            echo "Ende: " . formatDateString($round->getStop()) ."</td>";
             echo "<td>";
             if(true || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now'))  {
                 echo '<a class="btn btn-success" href="'.$selectLink . $round->getId().'"><i class="fa fa-x fa-pencil"></i> Select</a>';

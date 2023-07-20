@@ -114,25 +114,13 @@ $discipline = Discipline::get($disciplineId);
             <?php
                 headLine("Ergebnisseingabe Einzelwertung", $discipline, $saison);
                 userLine($user);
-            ?>
-            
-            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
-                    <li class="breadcrumb-item"><a href="rounds.php?disciplineId=<?=$disciplineId?>">Runde</a></li>
-                    <li class="breadcrumb-item">Gilde</li>
-                    <li class="breadcrumb-item"><a href="teams.php?disciplineId=<?=$disciplineId?>&roundId=<?=$roundId?>">Team</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Ergebniseingabe</li>
-                </ol>
-            </nav>
-
-            <?php
+                crumbBar(5, $user->getRight()>0, $disciplineId,$roundId);
             seasonSelector($discipline);
             infoTableStart();
             $round = Round::get($roundId);   
             infoTableRow("Saison", $saison);  
             infoTableRow("RUNDE", $round->getRound());
-            
+            infoTableRow("Eingabe", getRoundRange($round, $user));
                        
             infoTableRow("DISZIPLIN", $discipline->getName());
 
@@ -149,16 +137,16 @@ $discipline = Discipline::get($disciplineId);
            
             <p class="text-center"><strong>Erfasste Ergebnisse</strong></p>
 
-            <div class="container-fluid">
+            <div class="container-fluid infoTable">
                 <div class="row"> 
                     <div class="col-8 col-md-8">
-                    Name
+                    <strong>Name</strong>
                     </div>
                     <div class="col-4 col-md-4">
-                    Ergebnis
+                    <strong>Ergebnis</strong>
                     </div>
                 </div>
-            </div>
+            
             <?php
 
                 foreach ($singleResults as $singleResult) {
@@ -169,15 +157,41 @@ $discipline = Discipline::get($disciplineId);
                         <?= utf8_convert($shooter[0]->getName())?>
                         </div>
                         <div class="col-4 col-md-4">
-                        <?=$singleResult->getResult()?>
+                            <?=$singleResult->getResult()?>
+                            <div class="modal fade" id="staticBackdrop<?=$singleResult->getId()?>" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">Ergebnis löschen</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                     Wollen Sie das Ergebnis von <br/><strong>"<?= utf8_convert($shooter[0]->getName())?> (<?=$singleResult->getResult()?>) "</strong><br/>wirklich löschen?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+                                        <button type="button" class="btn btn-danger">Löschen</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                          <?php  if(empty($disabled)){?>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#staticBackdrop<?=$singleResult->getId()?>">
+                                <i class="fa fa-x fa-trash"></i>
+                            </button>
+                           <?php } ?> 
                         </div>
+
                     </div>
                     <?php
                 }
 
-                if(empty($disabled)){
-                    echo '<p class="text-center"><strong>Einzelwertungsergebnis hinzufügen</strong></p>';
+                echo "</div>";
 
+                if(empty($disabled)){
+                    echo '<p class="text-center wordWrap"><strong>Einzelwertungsergebnis hinzufügen</strong></p>';
                     echo '<div class="row">'; 
                     echo "<div class='col-8 col-md-8'><select class='shooterSelect form-control' name='shooter'>";
                     echo "<option value=''>Schütze auswählen</option>";
@@ -187,9 +201,9 @@ $discipline = Discipline::get($disciplineId);
                         echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                     }
                     echo "</select></div>";
-                    echo "<div class='col-4 col-md-4'><input name='result' class='shooterResult form-control' type='number' value=''/></div>";
+                    echo "<div class='col-4 col-md-4'><input name='result' class='shooterResult form-control' type='number' min='0' max='".$discipline->getResultRange()."' value=''/></div>";
                     echo '</div><br/>';
-                    echo '<input  type="submit" class="btn btn-success" href="#" label="Hinzufügen"/>';
+                    echo '<input  type="submit" class="btn btn-success" href="#" value="Hinzufügen"/>';
 
                     echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
                     echo '<input type="hidden" name="roundId" value="'.$roundId.'">';

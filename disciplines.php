@@ -64,22 +64,10 @@ echo '<body>';
 <section class="container-fluid">
     <div class="row justify-content-center  ">
         <div class="col-11 rounded border shadow p-3 mb-5 bg-white " id="col-content" >            
-            <?=headLine("Disziplinen")?>
-            <?=userLine($user)?>
-
-            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Diszipline</li>
-                    <li class="breadcrumb-item">Runde</li>
-                    <li class="breadcrumb-item">Gilde</li>
-                    <li class="breadcrumb-item">Team</li>
-                    <li class="breadcrumb-item">Ergebniseingabe</li>
-                </ol>
-            </nav>
-
             <?php
-                
-
+            headLine("Disziplinen");
+            userLine($user);
+            crumbBar(2, $user->getRight()>0);
             ?>
 
             <ul class="nav nav-tabs">

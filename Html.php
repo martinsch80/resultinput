@@ -35,19 +35,27 @@ function backButton($href){
 }
 
 function infoTableStart(){
-    echo '<div class="infoTable">';
+    echo '<div class="container-fluid infoTable">';
 }
 
 function infoTableRow($th, $td){
     ?>
 
-    <div class="form-group row align-items-center">                    
+    <div class="row align-items-center">                    
         <label for="saisonSelect" class="col-sm-2 col-form-label"><strong><?=$th?></strong></label>
         <div class="col-sm-10">
             <?=$td?>
         </div>   
     </div>
     <?php
+}
+
+function getRoundRange($round, $user){
+    $text = "Start: " . formatDateString($round->getStart()). " Ende: " . formatDateString($round->getStop());
+    if($user->getRight()==0 && (strtotime($round->getStart()) > strtotime('now') || strtotime($round->getStop()) < strtotime('now'))){
+        $text .= '<div class="alert alert-warning" role="alert"> Runde außerhalb des Eingabebereichs! Änderungen nur mit Sportleiter Berechtigung möglich!</div>';
+    }
+    return $text;
 }
 
 function infoTableEnd(){
@@ -58,10 +66,10 @@ function headline($title){
     ?>
     <div class="container-fluid">
         <div class="row align-items-center">
-            <div class="col-11">
+            <div class="col-11 col-sm-11 mr-auto p-6">
                 <p class="text-center"><strong><?=$title?></strong></p>
             </div>
-            <div class="col-1">
+            <div class="p-1">
                 <p class="text-center"><i class="fa fa-x fa-info"></i></p>
             </div>
         </div>                    
@@ -74,6 +82,36 @@ function userLine($user){
         <div class="userInfoLine">Willkommen, Sie sind angemeldet als <strong><?=$user->getName()?></strong> mit der Berechtigung <strong><?=$user->getRightAsString()?></strong> </div>
     <?php
 }
+
+function crumbBar($index, $rights=false, $disciplineId=null, $roundId=null){
+    ?>
+
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <?php
+                echo crumbBarItem("Disziplin", $index==1, "disciplines.php", $index>=1);
+                echo crumbBarItem("Runde", $index==2, "rounds.php?disciplineId=".$disciplineId, $index>=2);
+                echo crumbBarItem("Gilde", $index==3, "vereins.php?disciplineId=". $disciplineId. "&roundId=". $roundId, $index>=3 && $rights);
+                echo crumbBarItem("Team", $index==4, "teams.php?disciplineId=". $disciplineId. "&roundId=". $roundId, $index>=4);
+                echo crumbBarItem("Ergebniseingabe", $index==5);
+            ?>
+        </ol>
+    </nav>
+    <?php
+}
+
+function crumbBarItem($title, $active=false, $href=null, $rights=false){
+    if($active){
+        echo '<li class="breadcrumb-item active" aria-current="page">'.$title.'</li>';
+    }
+    else if($href && $rights){
+        echo '<li class="breadcrumb-item"><a href="'.$href.'">'.$title.'</a></li>';
+    }
+    else{
+        echo '<li class="breadcrumb-item">'.$title.'</li>';
+    }
+
+} 
 
 function seasonSelector($discipline){
 
@@ -132,7 +170,7 @@ function renderLogoutSection(){
     ?>
     <section class="col-12 text-center logoffSection">
         <form action="login.php" type="GET">
-            <input type="submit"  name="" value="Logout" class="btn btn-dark">
+            <input type="submit"  name="" value="Abmelden" class="btn btn-dark">
             <input type="hidden" name="logoff" value="y">
         </form>
     </section>

@@ -70,28 +70,18 @@ $discipline = Discipline::get($disciplineId);
 <section class="container-fluid">
     <div class="row justify-content-center  ">
         <div class="col-11 rounded border shadow p-11 mb-11 bg-white " id="col-Login" >
-            <?=headLine("Verein")?>
-            <?=userLine($user)?>
-
-            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
-                    <li class="breadcrumb-item"><a href="rounds.php?disciplineId=<?=$disciplineId?>">Runde</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Gilde</li>
-                    <li class="breadcrumb-item">Team</li>
-                    <li class="breadcrumb-item">Ergebniseingabe</li>
-                </ol>
-            </nav>
-
             <?php
-
-           
+            headLine("Verein");
+            userLine($user);
+            crumbBar(3, $user->getRight()>0, $disciplineId,$roundId);
+                       
             $round = Round::get($roundId);   
             seasonSelector($discipline);
             infoTableStart();
             infoTableRow("Saison", $saison);  
             infoTableRow("DISZIPLIN", $discipline->getName());
             infoTableRow("RUNDE", $round->getRound()); 
+            infoTableRow("Eingabe", getRoundRange($round, $user));  
             infoTableEnd();         
 
             ?>

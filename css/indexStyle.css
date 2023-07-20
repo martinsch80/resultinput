@@ -18,6 +18,10 @@ label{
     font-size:15px;
 }
 
+.wordWrap{
+    word-wrap: break-word;
+}
+
 .shooterResult{
     width: 100px;
     text-align: right;
@@ -28,7 +32,7 @@ label{
 }
 
 .colID{
-    width: 80px;
+    width: 50px;
 }
 
 .colSelect{
@@ -40,7 +44,7 @@ label{
     padding-top: 15px;
 }
 .colResult{
-    width: 120px;
+    width: 60px;
 }
 
 .userInfoLine{

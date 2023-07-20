@@ -115,8 +115,6 @@ echo '<html>';
 renderHeader("Ergebnisseingabe");
 echo '<body>';
 
-
-
 ?>
 <section class="container-fluid">
     <div class="row justify-content-center  ">
@@ -125,22 +123,10 @@ echo '<body>';
             <?php 
             headLine("Ergebnisseingabe");
             userLine($user);
-            ?>
+            crumbBar(5, $user->getRight()>0, $disciplineId,$roundId);
 
-            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="disciplines.php">Diszipline</a></li>
-                    <li class="breadcrumb-item"><a href="rounds.php?disciplineId=<?=$disciplineId?>">Runde</a></li>
-                    <li class="breadcrumb-item">Gilde</li>
-                    <li class="breadcrumb-item"><a href="teams.php?disciplineId=<?=$disciplineId?>&roundId=<?=$roundId?>">Team</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Ergebniseingabe</li>
-                </ol>
-            </nav>
-
-
-            <div class="form-group">
-                <table class="table table-striped">
-            <?php
+            echo '<div class="form-group">';
+            echo '<table class="table table-striped">';
 
             if(!isset($teamResult)){
                 echo "Keine Begegnung für die gewählte Manschaft gefunden";
@@ -158,10 +144,9 @@ echo '<body>';
             infoTableRow("Saison", $saison);   
             infoTableRow("DISZIPLIN", $discipline->getName());
             infoTableRow("RUNDE", $round->getRound());
-            infoTableRow("Eingabe", "Start: " . formatDateString($round->getStart()). " Ende: " . formatDateString($round->getStop()));
+            infoTableRow("Eingabe", getRoundRange($round, $user));
             infoTableRow("Gilde", Verein::get( $verein)->getName()); 
-            infoTableEnd();           
-
+            
             $homeTeamId = $teamResult->getHomeTeamId();
             $guaestTeamId = $teamResult->getGuestTeamId();
             $homeTeam = Team::get($homeTeamId);
@@ -175,6 +160,8 @@ echo '<body>';
             $visit =  utf8_convert($homeTeam->getName()) . " vs " . utf8_convert($guestTeamName) ;
 
             infoTableRow("Begegnung", $visit);
+
+            infoTableEnd();           
 
 
             $shooters = Shooter::getAllByPassNr($homeTeam->getCode(), $discipline->getWeapon());
@@ -194,7 +181,7 @@ echo '<body>';
             <?php
 
                 echo "<tr>";
-                echo "<th class='colID'>Schütze</th>";
+                echo "<th class='colID'>Nr</th>";
                 echo "<th>Name</th>";
                 echo "<th class='colResult'>Ergebnis</th>";
                 echo "</tr>";
@@ -211,7 +198,9 @@ echo '<body>';
                         echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                     }
                     echo "</select></td>";
-                    echo "<td><input name='homeTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number' value='".$teamResult->getShooterResult($i, $homeTeamId)."'/></td>";
+                    echo "<td>";
+                    echo "<input name='homeTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number'";
+                    echo " value='".$teamResult->getShooterResult($i, $homeTeamId)."' min='0' max='".$discipline->getResultRange()."'/></td>";
                     echo "</tr>"; 
                  }
                  echo "<tr>";
@@ -231,7 +220,7 @@ echo '<body>';
             <?php
 
                 echo "<tr>";
-                echo "<th class='colID'>Schütze</th>";
+                echo "<th class='colID'>Nr</th>";
                 echo "<th>Name</th>";
                 echo "<th class='colResult'>Ergebnis</th>";
                 echo "</tr>";
