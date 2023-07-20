@@ -119,10 +119,10 @@ $discipline = Discipline::get($disciplineId);
             infoTableStart();
             $round = Round::get($roundId);   
             infoTableRow("Saison", $saison);  
+            infoTableRow("DISZIPLIN", $discipline->getName());
             infoTableRow("RUNDE", $round->getRound());
             infoTableRow("Eingabe", getRoundRange($round, $user));
                        
-            infoTableRow("DISZIPLIN", $discipline->getName());
 
             infoTableRow("Gilde", Verein::get( $verein)->getName());  
             infoTableEnd();
