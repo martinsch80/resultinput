@@ -93,11 +93,49 @@ class Shooter implements DatabaseService
         return $list;
     }
 
-    public static function getAllByPassNr($passNr){
+    private static function getWeaponFilter($weapon){
+        if(isset($weapon)){
+            switch ($weapon) {
+                case 'Luftpistole':
+                    $col = "LP";
+                    break;
+                case 'Luftgewehr':
+                    $col = "LG";
+                    break;
+                case 'Freie Pistole':
+                    $col = "FP";
+                    break;
+                case 'Kleinkaliber-Gewehr':
+                    $col = "KK";
+                    break;
+                case 'Sportpistole':
+                    $col = "LP";
+                    break;   
+                case 'Standardpistole':
+                    $col = "LP";
+                    break;
+                case 'Luftpistole fünfschüssig':
+                    $col = "LP5";
+                    break;  
+                default:
+                    return "";
+                    break;
+            }
+            return 'AND ' . $col . ' = 1 ';
+        }
+        else{
+            return "";
+        }
+    }
+
+
+    public static function getAllByPassNr($passNr, $weapon=null){
         $list = [];
 
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_PASSNR.' like :passNr ORDER BY name ASC';
+        
+        $weponfilter = self::getWeaponFilter($weapon);
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_PASSNR.' like :passNr '.$weponfilter.'ORDER BY name ASC';
         $stmt=$db->prepare($sql);
         $passNr = "$passNr%";
         $stmt->bindParam(':passNr', $passNr);
