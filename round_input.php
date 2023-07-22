@@ -204,7 +204,8 @@ echo '<body>';
                         echo "</select></td>";
                         echo "<td>";
                         echo "<input name='".$prefix."Result[]' ". $disabled ." class='".$prefix."Result shooterResult form-control' type='number'";
-                        echo " value='".$teamResult->getShooterResult($i, $team->getId())."' min='0' max='".$discipline->getResultRange()."'/></td>";
+                        $step = $discipline->getZiroOne()? 0.1: 1;
+                        echo " value='".$teamResult->getShooterResult($i, $team->getId())."' min='0' max='".$discipline->getResultRange()."' step='".$step."'/></td>";
                         echo "</tr>"; 
                     }
                     echo "<tr>";
@@ -234,7 +235,7 @@ echo '<body>';
                                     var val = parseFloat($(this)[0].value)
                                     if(val) amount += val;
                                 })
-                                $("#<?=$prefix?>total").text(amount)
+                                $("#<?=$prefix?>total").text(parseFloat(amount.toFixed(1)))
                             });
                         </script>
                     <?php

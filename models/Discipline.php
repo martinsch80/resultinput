@@ -15,6 +15,7 @@ class Discipline implements DatabaseService
     const COLUMN_SEASON = "season_state";
     const COLUMN_PSIZE = "s_t";
     const COLUMN_RESULT_RANGE = "result_range";
+    const COLUMN_ZEHNTEL = "zehntel";
 
     private $id;
     private $name;
@@ -22,10 +23,11 @@ class Discipline implements DatabaseService
     private $season;
     private $psize;
     private $resultRange;
+    private $ziroOne;
 
     private $errors;
 
-    public function __construct($id, $name, $weapon, $season, $psize, $resultRange)
+    public function __construct($id, $name, $weapon, $season, $psize, $resultRange, $ziroOne)
     {
         $this->id = $id;
         $this->name = $name;
@@ -33,6 +35,7 @@ class Discipline implements DatabaseService
         $this->season = $season;
         $this->psize = $psize;
         $this->resultRange = $resultRange;
+        $this->ziroOne = $ziroOne;
 
         $this->errors = [];
     }
@@ -120,7 +123,8 @@ class Discipline implements DatabaseService
             $obj[self::COLUMN_WEAPON], 
             $obj[self::COLUMN_SEASON],
             $obj[self::COLUMN_PSIZE],
-            $obj[self::COLUMN_RESULT_RANGE]
+            $obj[self::COLUMN_RESULT_RANGE],
+            $obj[self::COLUMN_ZEHNTEL]
          );
     }
 
@@ -218,6 +222,22 @@ class Discipline implements DatabaseService
     public function setResultRange($resultRange)
     {
         $this->resultRange = $resultRange;
+    }
+
+     /**
+     * @return mixed
+     */
+    public function getZiroOne()
+    {
+        return $this->ziroOne;
+    }
+
+    /**
+     * @param mixed $ziroOne
+     */
+    public function setZiroOne($ziroOne)
+    {
+        $this->ziroOne = $ziroOne;
     }
 
     /**
