@@ -200,7 +200,8 @@ $discipline = Discipline::get($disciplineId);
                         echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                     }
                     echo "</select></div>";
-                    echo "<div class='col-4 col-md-4'><input name='result' class='shooterResult form-control' type='number' min='0' max='".$discipline->getResultRange()."' value=''/></div>";
+                    $step = $discipline->getZiroOne()? 0.1: 1;
+                    echo "<div class='col-4 col-md-4'><input name='result' class='shooterResult form-control' type='number' min='0' max='".$discipline->getResultRange()."' step='".$step."' value=''/></div>";
                     echo '</div><br/>';
                     echo '<input  type="submit" class="btn btn-success" href="#" value="Hinzufügen"/>';
 
