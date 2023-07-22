@@ -21,7 +21,15 @@ function renderHeader($title){
 
 
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-2SBFQDC5CC"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
 
+                gtag('config', 'G-2SBFQDC5CC');
+            </script>
         </head>
 
     <?php
@@ -70,7 +78,31 @@ function headline($title){
                 <p class="text-center"><strong><?=$title?></strong></p>
             </div>
             <div class="p-1">
-                <p class="text-center"><i class="fa fa-x fa-info"></i></p>
+                <a class="text-center" data-toggle="modal" data-target="#staticBackdrop">
+                    <i class="fa fa-x fa-info"></i>
+                </a>
+            </div>
+
+            <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">ApplikationsInfos</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <c>Mobile Webapp zur Eingabe der Rundenwettkampfergebnisse in das Rundenwettkampfprogramm ALL IN des TLSB <br/></c>
+                        <c><strong> Abfrage: </strong><br><a href="https://rwk-tlsb.net" target="_blank">Abfrage und Downloadbereich</a><br><br></c>
+                        <c><strong> Programmierung WEB Abfrage- und Eingabe-Tools: </strong><br>Martin Schranz (SG-Fließ)<br><br></c>
+                        <c><strong> Programmierung RWK Tool All-IN: </strong><br>Bauhofer Peter (SG-Wörgl)<br><br></c>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+                    </div>
+                    </div>
+                </div>
             </div>
         </div>                    
     </div>

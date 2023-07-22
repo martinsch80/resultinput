@@ -86,13 +86,12 @@ if(!empty($_POST))
         $result,
         0,
         $saison,
-        $obj[self::COLUMN_CHANGEDATE],
+        new Date("now"),
         $user->getId(),
-        $obj[self::COLUMN_SEASIONSTATE],
+        $discipline->getSeason(),
         $disciplineId
     );
-   //$teamResult->setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults);
-
+   
     if($singleResult->validate())
     {
         $singleResult->save();

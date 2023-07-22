@@ -58,3 +58,8 @@ label{
 .infoTable > div:nth-of-type(odd){
     background-color: rgba(0,0,0,.05);
 }
+.total{
+    padding-right: 10px;
+    font-size: xx-large;
+    font-weight: bolder;
+}

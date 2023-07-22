@@ -103,6 +103,7 @@ if(!empty($_POST))
     $guastTeamResults = $_POST['guastTeamResult'];
     
     $teamResult->setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults);
+    die($teamResult);
 
     if($teamResult->validate())
     {
@@ -164,89 +165,57 @@ echo '<body>';
             infoTableEnd();           
 
 
-            $shooters = Shooter::getAllByPassNr($homeTeam->getCode(), $discipline->getWeapon());
+           
             
             $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now')?"":"disabled";
 
             ?>
-
-            </div>
-            </table>
             <form action="#" method="POST">
-           
-            <p class="text-center"><strong>Heim: <?=utf8_convert($homeTeam->getName())?></strong></p>
-
-            <div class="form-group">
-                <table class="table table-striped">
+                       
             <?php
 
-                echo "<tr>";
-                echo "<th class='colID'>Nr</th>";
-                echo "<th>Name</th>";
-                echo "<th class='colResult'>Ergebnis</th>";
-                echo "</tr>";
+                renderTeamTable($teamResult, $homeTeam, $discipline, $disabled, "Heim", "homeTeam");
+                if( $guaestTeamId){
+                    renderTeamTable($teamResult, $guaestTeam, $discipline, $disabled, "Gast", "guastTeam");
+                }
 
-                for($i=1; $i <= $discipline->getPsize(); $i++) {
+                function renderTeamTable($teamResult, $team, $discipline, $disabled, $title, $prefix){
+                    $shooters = Shooter::getAllByPassNr($team->getCode(), $discipline->getWeapon());
+                    echo '<p class="text-center"><strong>'.$title.': '.utf8_convert($team->getName()).'</strong></p>';
+                    echo '<div class="form-group">';
+                    echo '<table class="table table-striped">';
                     echo "<tr>";
-                    echo "<td>".$i."</td>";
-                    echo "<td><select ". $disabled ." class='shooterSelect form-control' name='homeTeamShooter[]'>";
-                    echo "<option value=''>Schütze auswählen</option>";
-                    foreach ($shooters as $shooter)
-                    {
-                        echo "<option ";
-                        if($teamResult->getShooterNr($i, $homeTeamId) == $shooter->getPassNr()) echo "selected ";                        
-                        echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
-                    }
-                    echo "</select></td>";
-                    echo "<td>";
-                    echo "<input name='homeTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number'";
-                    echo " value='".$teamResult->getShooterResult($i, $homeTeamId)."' min='0' max='".$discipline->getResultRange()."'/></td>";
-                    echo "</tr>"; 
-                 }
-                 echo "<tr>";
-                 echo "<td></td>";
-                 echo "<td><strong>Gesamt:</strong></td>";
-                 echo "<td id='total' class='shooterResult'><strong>".$teamResult->getTeamResult($homeTeamId)."</strong></td>";
-                 echo "</tr>";
-            ?>
-                </table>
-            <?php
-            if( $guaestTeamId){
-                $shooters = Shooter::getAllByPassNr($guaestTeam->getCode(), $discipline->getWeapon());
-                ?>
-                <p class="text-center"><strong>Gast: <?=utf8_convert($guaestTeam->getName())?></strong></p>
-            <div class="form-group">
-                <table class="table table-striped">
-            <?php
-
-                echo "<tr>";
-                echo "<th class='colID'>Nr</th>";
-                echo "<th>Name</th>";
-                echo "<th class='colResult'>Ergebnis</th>";
-                echo "</tr>";
-
-                for($i=1; $i <= $discipline->getPsize(); $i++) {
-                    echo "<tr>";
-                    echo "<td>".$i."</td>";
-                    echo "<td><select ". $disabled ." class='shooterSelect form-control' name='guastTeamShooter[]'>";
-                    echo "<option value=''>Schütze auswählen</option>";
-                    foreach ($shooters as $shooter)
-                    {
-                        echo "<option ";
-                        if($teamResult->getShooterNr($i,  $guaestTeamId) == $shooter->getPassNr()) echo "selected ";                        
-                        echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
-                    }
-                    echo "</select></td>";
-                    echo "<td><input name='guastTeamResult[]' ". $disabled ." class='shooterResult form-control' type='number' value='".$teamResult->getShooterResult($i,  $guaestTeamId)."'/></td>";
+                    echo "<th class='colID'>Nr</th>";
+                    echo "<th>Name</th>";
+                    echo "<th class='colResult'>Ergebnis</th>";
                     echo "</tr>";
-                 }
-                 echo "<tr>";
-                 echo "<td></td>";
-                 echo "<td><strong>Gesamt:</strong></td>";
-                 echo "<td id='total' class='shooterResult'><strong>".$teamResult->getTeamResult( $guaestTeamId)."</strong></td>";
-                 echo "</tr>";
-                echo "</table>";
-            }
+
+                    for($i=1; $i <= $discipline->getPsize(); $i++) {
+                        echo "<tr>";
+                        echo "<td>".$i."</td>";
+                        echo "<td><select ". $disabled ." class='shooterSelect form-control' name='".$prefix."Shooter[]'>";
+                        echo "<option value=''>Schütze auswählen</option>";
+                        foreach ($shooters as $shooter)
+                        {
+                            echo "<option ";
+                            if($teamResult->getShooterNr($i, $team->getId()) == $shooter->getPassNr()) echo "selected ";                        
+                            echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
+                        }
+                        echo "</select></td>";
+                        echo "<td>";
+                        echo "<input name='".$prefix."Result[]' ". $disabled ." class='".$prefix."Result shooterResult form-control' type='number'";
+                        echo " value='".$teamResult->getShooterResult($i, $team->getId())."' min='0' max='".$discipline->getResultRange()."'/></td>";
+                        echo "</tr>"; 
+                    }
+                    echo "<tr>";
+                    echo "<td></td>";
+                    echo "<td><strong>Gesamt:</strong></td>";
+                    echo "<td id='".$prefix."total' class='shooterResult total'>".$teamResult->getTeamResult($team->getId())."</td>";
+                    echo "</tr>";
+                    echo "</table>";
+                    renderUpdateJS($prefix);
+                    echo "</div>";
+                }
                 if(empty($disabled)){
                     echo '<input  type="submit" class="btn btn-success" href="#"/>';
                 }
@@ -255,24 +224,32 @@ echo '<body>';
                 echo '<input type="hidden" name="roundId" value="'.$roundId.'">';
                 echo '<input type="hidden" name="teamId" value="'.$teamId.'">';
                 backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId);
-                ?>
-                </div>
+
+                function renderUpdateJS($prefix){
+                    ?>
+                        <script type="text/javascript">
+                            $(".<?=$prefix?>Result").change(function(){
+                                var amount = 0;
+                                $(".<?=$prefix?>Result").each( function() {
+                                    var val = parseFloat($(this)[0].value)
+                                    if(val) amount += val;
+                                })
+                                $("#<?=$prefix?>total").text(amount)
+                            });
+                        </script>
+                    <?php
+                };
+                
+            ?>
             </form>
         </div>
     </div>
 </section>
 
 
-<script type="text/javascript">
-    $("input").change(function(){
-        var amount = 0;
-        $(".shooterResult").each( function() {
-            var val = parseFloat($(this)[0].value)
-            if(val) amount += val;
-        })
-        $("#total").text(amount)
-    });
-</script>
+
+
+
 <?php
 
     renderLogoutSection();

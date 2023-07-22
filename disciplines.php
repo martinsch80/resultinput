@@ -67,7 +67,7 @@ echo '<body>';
             <?php
             headLine("Disziplinen");
             userLine($user);
-            crumbBar(2, $user->getRight()>0);
+            crumbBar(1, $user->getRight()>0);
             ?>
 
             <ul class="nav nav-tabs">
