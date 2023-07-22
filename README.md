@@ -4,7 +4,7 @@ Projekt zur Erfassung von RWK Ergebnisse Per WEB
 
 Erfassung mittels Mobil Tel per Browser.
 
-## Login mit Mannschaftsfüherer
+## Login mit Mannschaftsführer
 
 Mannschaftsführer sind nur währen des Zeitraums der Runde berechtig Ergebnisse für ihre Gilde (+ GegnerMannschaft) berechtigt.
 
