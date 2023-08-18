@@ -67,34 +67,36 @@ if(isset($_GET['roundId']))
     $roundId = $_GET['roundId'];
 }
 
-$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundId, $verein);
+$discipline = Discipline::get($disciplineId); 
 
 if(!empty($_POST))
 {
  
     $shooterNr = $_POST['shooter'];
     $result = $_POST['result'];
-    var_dump($shooterNr);
-    var_dump($result);
-    die("TODO Create Single Result");
-
-    $singleResult =  new SingelResult(
-        null,
-        $roundId,
-        0,
-        $shooterNr,
-        $result,
-        0,
-        $saison,
-        new Date("now"),
-        $user->getId(),
-        $discipline->getSeason(),
-        $disciplineId
-    );
-   
-    if($singleResult->validate())
-    {
-        $singleResult->save();
+    if(!empty($shooterNr) && !empty($result)){
+        $currentDateTime = new DateTime('now');
+        $singleResult =  new SingelResult(
+            null,
+            $roundId,
+            0,
+            $shooterNr,
+            $result,
+            0,
+            $saison,
+            $currentDateTime->format('Y-m-d H:i:s'),
+            $user->getId(),
+            $discipline->getSeason(),
+            $disciplineId
+        );
+    
+        if($singleResult->validate())
+        {
+            $singleResult->create();
+        }
+    }
+    else if(!empty($_POST['singleResultId'])){
+        SingelResult::delete($_POST['singleResultId']);
     }
 }
 
@@ -103,7 +105,8 @@ echo '<html>';
 renderHeader("Ergebnisseingabe");
 echo '<body>';
 
-$discipline = Discipline::get($disciplineId); 
+
+$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundId, $verein);
 
 ?>
 <section class="container-fluid">
@@ -126,13 +129,13 @@ $discipline = Discipline::get($disciplineId);
             infoTableRow("Gilde", Verein::get( $verein)->getName());  
             infoTableEnd();
 
-            $shooters = Shooter::getAllByPassNr( $verein);
+            
 
             $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now')?"":"disabled";
 
             ?>
 
-            <form action="#" method="POST">
+            <form id="form" action="#" method="POST">
            
             <p class="text-center"><strong>Erfasste Ergebnisse</strong></p>
 
@@ -171,7 +174,8 @@ $discipline = Discipline::get($disciplineId);
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
-                                        <button type="button" class="btn btn-danger">Löschen</button>
+                                        <button type="button" onClick="deleteSingleResult(<?=$singleResult->getId()?>)" class="btn btn-danger">Löschen</button>
+                                        
                                     </div>
                                     </div>
                                 </div>
@@ -188,8 +192,10 @@ $discipline = Discipline::get($disciplineId);
                 }
 
                 echo "</div>";
-
                 if(empty($disabled)){
+                    
+                    $shooters = Shooter::getAllByPassNrAndWithNoResultOfRound( $verein, $discipline->getWeapon(), $roundId, $saison);
+
                     echo '<p class="text-center wordWrap"><strong>Einzelwertungsergebnis hinzufügen</strong></p>';
                     echo '<div class="row">'; 
                     echo "<div class='col-8 col-md-8'><select class='shooterSelect form-control' name='shooter'>";
@@ -207,6 +213,7 @@ $discipline = Discipline::get($disciplineId);
 
                     echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
                     echo '<input type="hidden" name="roundId" value="'.$roundId.'">';
+                    echo '<input type="hidden" id="singleResultId" name="singleResultId" value="">';
                 }
                 backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId)
                 ?>
@@ -215,6 +222,14 @@ $discipline = Discipline::get($disciplineId);
         </div>
     </div>
 </section>
+
+<script type="text/javascript">
+    function deleteSingleResult(id){
+        $("#singleResultId").val(id);
+        $("#form").submit();
+    }
+
+</script>
 
 <?php
 

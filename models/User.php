@@ -226,6 +226,7 @@ return true;
     {
         unset($_SESSION['user']);
         unset($_SESSION['saison']);
+        unset($_SESSION['verein']);
     }
 
     public function update()

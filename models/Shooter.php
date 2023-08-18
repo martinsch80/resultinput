@@ -153,14 +153,21 @@ class Shooter implements DatabaseService
         return $list;
     }
 
-    public static function getAllByPassNrAnd($passNr,){
+    public static function getAllByPassNrAndWithNoResultOfRound($passNr, $weapon=null, $roundId=null, $saison=null){
         $list = [];
 
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_PASSNR.' like :passNr ORDER BY name ASC';
+
+        $weponfilter = self::getWeaponFilter($weapon);
+        $sql = 'SELECT s.* FROM '.self::TABLE_NAME.' s ';
+        $sql .= 'LEFT OUTER JOIN view_tlsb_p_roundresult pr ON s.pass_nr = pr.p_number AND pr.round_id = :roundId AND pr.season = :saison ';
+        $sql .= 'WHERE '. self::COLUMN_PASSNR.' LIKE :passNr '.$weponfilter.' AND pr.p_result IS null ORDER BY s.name ASC';
+        
         $stmt=$db->prepare($sql);
         $passNr = "$passNr%";
         $stmt->bindParam(':passNr', $passNr);
+        $stmt->bindParam(':roundId', $$roundId);
+        $stmt->bindParam(':saison', $saison);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

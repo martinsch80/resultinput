@@ -112,10 +112,32 @@ class SingelResult implements DatabaseService
         // not Implemented;
     }
     public function create(){
-        // not Implemented;
+        $db = Database::connect();
+        $sql = 'INSERT INTO `tlsb_single_result` (`round_id`, `hobby`, `p_number`, `p_result`, `season`, `change_date`, `usr_id`, `p_i_zehner`, `season_state`, `discipline`) VALUES (:roundId, :hobby, :pnumber, :presult, :saison, :changeDate, :userId, :piten, :saisonState, :disciplinId)';
+        $stmt=$db->prepare($sql);
+        
+        $stmt->bindParam(':roundId', $this->roundId);
+        $stmt->bindParam(':hobby', $this->hobby);
+        $stmt->bindParam(':pnumber', $this->number);
+        $stmt->bindParam(':presult', $this->result);
+        $stmt->bindParam(':saison', $this->season);
+        $stmt->bindParam(':changeDate', $this->changeDate);
+        $stmt->bindParam(':userId', $this->userId);
+        $stmt->bindParam(':piten', $this->iTen);
+        $stmt->bindParam(':saisonState', $this->seasonState);
+        $stmt->bindParam(':disciplinId', $this->discipline);
+       
+        $stmt->execute();
+        Database::disconnect();
+
     }
     public static function delete($id){
-        // not Implemented;
+        $db = Database::connect();
+
+        $sql = 'DELETE FROM tlsb_single_result WHERE result_id=?';
+        $stmt = $db->prepare($sql);
+        $stmt->execute(array($id));
+        Database::disconnect();
     }
 
     public static function get($id)
@@ -155,7 +177,7 @@ class SingelResult implements DatabaseService
    
 
     public function validate(){
-        return false;
+        return true;
     }
 
 
