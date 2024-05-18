@@ -16,7 +16,7 @@ class Discipline implements DatabaseService
     const COLUMN_PSIZE = "s_t";
     const COLUMN_RESULT_RANGE = "result_range";
     const COLUMN_ZEHNTEL = "zehntel";
-    const COLUMN_DISTRICTS = "destrict_str"
+    const COLUMN_DISTRICTS = "destrict_str";
 
     private $id;
     private $name;

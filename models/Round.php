@@ -75,11 +75,10 @@ class Round implements DatabaseService
 
         $districts = $district;
         if($discipline->getDistricts() != null) $districts = $discipline->getDistricts();
-
+       
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_DISTRICT.' in (:discricts) AND '. self::COLUMN_DISCIPLINE.' = :disciplineId  ORDER BY '.self::COLUMN_ROUND.' ASC';
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_DISTRICT.' in ('.$districts.') AND '. self::COLUMN_DISCIPLINE.' = :disciplineId  ORDER BY '.self::COLUMN_ROUND.' ASC';
         $stmt=$db->prepare($sql);
-        $stmt->bindParam(':discricts', $districts);
         $stmt->bindParam(':disciplineId', $discipline->getId());
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -91,7 +90,6 @@ class Round implements DatabaseService
         foreach ($data as $obj) {
             $list[] = self::dataToObject($obj);
         }
-
         return $list;
     }
 
