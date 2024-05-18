@@ -10,9 +10,11 @@ jobs:
       - name: Get latest code
         uses: actions/checkout@v4
       - name: Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: pressidium/lftp-mirror-action@v1
         with:
-          server: rwk-tlsb.net
-          username: schma
-          password: ${{ secrets.tlsb_ftp_password }}
-          server-dir: /var/www/html/webinput/
+          host: rwk-tlsb.net
+          port: 22
+          user: schma
+          pass: ${{ secrets.tlsb_ftp_password }}
+          remoteDir: '/var/www/html/webinput/'
+          reverse: true        
