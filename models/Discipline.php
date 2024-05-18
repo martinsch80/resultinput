@@ -16,6 +16,7 @@ class Discipline implements DatabaseService
     const COLUMN_PSIZE = "s_t";
     const COLUMN_RESULT_RANGE = "result_range";
     const COLUMN_ZEHNTEL = "zehntel";
+    const COLUMN_DISTRICTS = "destrict_str";
 
     private $id;
     private $name;
@@ -24,10 +25,11 @@ class Discipline implements DatabaseService
     private $psize;
     private $resultRange;
     private $ziroOne;
+    private $districts;
 
     private $errors;
 
-    public function __construct($id, $name, $weapon, $season, $psize, $resultRange, $ziroOne)
+    public function __construct($id, $name, $weapon, $season, $psize, $resultRange, $ziroOne, $districts)
     {
         $this->id = $id;
         $this->name = $name;
@@ -36,6 +38,7 @@ class Discipline implements DatabaseService
         $this->psize = $psize;
         $this->resultRange = $resultRange;
         $this->ziroOne = $ziroOne;
+        $this->districts = $districts;
 
         $this->errors = [];
     }
@@ -124,7 +127,8 @@ class Discipline implements DatabaseService
             $obj[self::COLUMN_SEASON],
             $obj[self::COLUMN_PSIZE],
             $obj[self::COLUMN_RESULT_RANGE],
-            $obj[self::COLUMN_ZEHNTEL]
+            $obj[self::COLUMN_ZEHNTEL],
+            $obj[self::COLUMN_DISTRICTS]
          );
     }
 
@@ -240,6 +244,22 @@ class Discipline implements DatabaseService
         $this->ziroOne = $ziroOne;
     }
 
+    
+    /**
+     * @return array
+     */
+    public function getDistricts()
+    {
+        return $this->districts;
+    }
+
+    /**
+     * @param array $errors
+     */
+    public function setDistricts($districts)
+    {
+        $this->districts = $districts;
+    }
     /**
      * @return array
      */
