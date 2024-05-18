@@ -5,7 +5,7 @@ class Database
     private static $dbName = 'tlsb';
     private static $dbHost = 'localhost';
     private static $dbUsername = 'rwk_db';
-    private static $dbUserPassword = 'hallo123';
+    private static $dbUserPassword = '#n#eghW7kJ';
 
     private static $conn = null;
 
