@@ -93,7 +93,7 @@ else{
             <?php
 
 
-            $rounds = Round::getAllByDistrictAndDiscipline($discrictId, $disciplineId);
+            $rounds = Round::getAllByDistrictAndDiscipline($discrictId, $discipline);
 
             $selectLink = 'teams.php';
             if($user->getRight() == 1){
