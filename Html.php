@@ -60,7 +60,7 @@ function infoTableRow($th, $td){
 
 function getRoundRange($round, $user){
     $text = "Start: " . formatDateString($round->getStart()). " Ende: " . formatDateString($round->getStop());
-    if($user->getRight()==0 && (strtotime($round->getStart()) > strtotime('now') || strtotime($round->getStop()) < strtotime('now'))){
+    if($user->getRight()==0 && (strtotime($round->getStart()) > strtotime('now') || strtotime($round->getStop() . " 23:59:59") < strtotime('now'))){
         $text .= '<div class="alert alert-warning" role="alert"> Runde außerhalb des Eingabebereichs! Änderungen nur mit Sportleiter Berechtigung möglich!</div>';
     }
     return $text;
