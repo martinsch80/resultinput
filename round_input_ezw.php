@@ -131,7 +131,7 @@ $singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundI
 
             
 
-            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop()) > strtotime('now')?"":"disabled";
+            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop() . " 23:59:59") > strtotime('now')?"":"disabled";
 
             ?>
 
