@@ -77,7 +77,7 @@ class Round implements DatabaseService
         if($discipline->getDistricts() != null) $districts = $discipline->getDistricts();
        
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_DISTRICT.' in ('.$districts.') AND '. self::COLUMN_DISCIPLINE.' = :disciplineId  ORDER BY '.self::COLUMN_ROUND.' ASC';
+        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '. self::COLUMN_DISTRICT.' in ('.$districts.') AND '. self::COLUMN_DISCIPLINE.' = :disciplineId AND active = 1 ORDER BY '.self::COLUMN_ROUND.' ASC';
         $stmt=$db->prepare($sql);
         $stmt->bindParam(':disciplineId', $discipline->getId());
         $stmt->execute();
