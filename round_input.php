@@ -103,7 +103,7 @@ if(!empty($_POST))
     $guastTeamResults = $_POST['guastTeamResult'];
     
     $teamResult->setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults);
-    $teamResult->setDiscipline($discipline)
+    $teamResult->setDiscipline($discipline);
 
     die($teamResult);
 
