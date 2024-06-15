@@ -166,6 +166,12 @@ class TeamResults implements DatabaseService
         $this->errors = [];
     }
 
+    public static function getTabel($discipline){
+        if(strtolower($discipline->getSeason()) == "s") {
+            return self::TABLE_NAME . "_s";
+        }
+        return self::TABLE_NAME;
+    }
 
    
     public static function getAll($discipline)
