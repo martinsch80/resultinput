@@ -234,7 +234,7 @@ class TeamResults implements DatabaseService
 
     public function update(){
         if(strtolower($this->discipline->getSeason()) == "s"){
-            return self::TABLE_NAME."_s";
+            return self::updateS();
         }
         return self::updateW();
     }
