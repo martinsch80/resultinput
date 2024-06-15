@@ -168,13 +168,13 @@ class TeamResults implements DatabaseService
 
 
    
-    public static function getAll()
+    public static function getAll($discipline)
     {
         // TODO: Implement getAll() method.
         $list = [];
 
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $sql = 'SELECT * FROM '.self::getTabel($discipline).' ORDER BY '.self::COLUMN_ROUNDID.' ASC';
         $stmt=$db->prepare($sql);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -190,21 +190,13 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
-    public static function getTable($discipline){
-        if(strtolower($discipline->getSeason()) == "s") {
-            return self::TABLE_NAME . "_s";
-        }
-        return self::TABLE_NAME;
-    }
-
     public static function getBySeasonAndTeamIdAndRoundId($discipline, $season, $roundId, $teamId)
     {
         // TODO: Implement getAll() method.
         $list = [];
         //Round_id = 31 AND SEASON = '2022 / 2023' AND (hometeam_id = 171 OR guestteam_id = 171)
-
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::getTable($discipline).' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $sql = 'SELECT * FROM '.self::getTabel($discipline).' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
         $stmt=$db->prepare($sql);
         
         $stmt->bindParam(':season', $season);
@@ -224,67 +216,52 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
-    public function update(){
-        // not Implemented;
-
+    public function update($discipline){
         $db = Database::connect();
-        $sql = 'UPDATE `'. self::getTabel($discipline).'` SET ';
+        $sql = 'UPDATE '.self::getTabel($discipline).' SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result , '.self::COLUMN_T1P1ITEN.' = :t1P1ITen , '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P2ITEN.' = :t1P2ITen , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P3ITEN.' = :t1P3ITen , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P4ITEN.' = :t1P4ITen , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_T1P5ITEN.' = :t1P5ITen , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P1ITEN.' = :t2P1ITen , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P2ITEN.' = :t2P2ITen , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P3ITEN.' = :t2P3ITen , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P4ITEN.' = :t2P4ITen , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_T2P5ITEN.' = :t2P5ITen , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
+        $stmt = $db->prepare($sql);
 
-        `hometeam_count`=4, 
-        `hometeam_result`=1576.5, 
-        `hometeam_points`=2, 
-        `t1_p1_number`='70420022', 
-        `t1_p1_result`=404.2, 
-        `t1_p2_number`='70420001', 
-        `t1_p2_result`=401.3, 
-        `t1_p3_number`='70420006', 
-        `t1_p3_result`=381.6, 
-        `t1_p4_number`='70420011', 
-        `t1_p4_result`=389.4, 
-        `t1_p5_number`=NULL, 
-        `t1_p5_result`=0, 
+        $stmt->bindParam(':homeTeamCount', $this->homeTeamCount); 
+        $stmt->bindParam(':homeTeamResult', $this->homeTeamResult); 
+        $stmt->bindParam(':homeTeamPoints', $this->homeTeamPoints); 
+        $stmt->bindParam(':t1P1Number', $this->t1P1Number); 
+        $stmt->bindParam(':t1P1Result', $this->t1P1Result); 
+        $stmt->bindParam(':t1P1ITen', $this->t1P1ITen); 
+        $stmt->bindParam(':t1P2Number', $this->t1P2Number); 
+        $stmt->bindParam(':t1P2Result', $this->t1P2Result); 
+        $stmt->bindParam(':t1P2ITen', $this->t1P2ITen); 
+        $stmt->bindParam(':t1P3Number', $this->t1P3Number); 
+        $stmt->bindParam(':t1P3Result', $this->t1P3Result); 
+        $stmt->bindParam(':t1P3ITen', $this->t1P3ITen); 
+        $stmt->bindParam(':t1P4Number', $this->t1P4Number); 
+        $stmt->bindParam(':t1P4Result', $this->t1P4Result); 
+        $stmt->bindParam(':t1P4ITen', $this->t1P4ITen); 
+        $stmt->bindParam(':t1P5Number', $this->t1P5Number); 
+        $stmt->bindParam(':t1P5Result', $this->t1P5Result); 
+        $stmt->bindParam(':t1P5ITen', $this->t1P5ITen); 
+        $stmt->bindParam(':guestTeamCount', $this->guestTeamCount); 
+        $stmt->bindParam(':guestTeamResult', $this->guestTeamResult); 
+        $stmt->bindParam(':guestTeamPoints', $this->guestTeamPoints); 
+        $stmt->bindParam(':t2P1Number', $this->t2P1Number); 
+        $stmt->bindParam(':t2P1Result', $this->t2P1Result); 
+        $stmt->bindParam(':t2P1ITen', $this->t2P1ITen); 
+        $stmt->bindParam(':t2P2Number', $this->t2P2Number); 
+        $stmt->bindParam(':t2P2Result', $this->t2P2Result); 
+        $stmt->bindParam(':t2P2ITen', $this->t2P2ITen); 
+        $stmt->bindParam(':t2P3Number', $this->t2P3Number); 
+        $stmt->bindParam(':t2P3Result', $this->t2P3Result); 
+        $stmt->bindParam(':t2P3ITen', $this->t2P3ITen); 
+        $stmt->bindParam(':t2P4Number', $this->t2P4Number); 
+        $stmt->bindParam(':t2P4Result', $this->t2P4Result); 
+        $stmt->bindParam(':t2P4ITen', $this->t2P4ITen); 
+        $stmt->bindParam(':t2P5Number', $this->t2P5Number); 
+        $stmt->bindParam(':t2P5Result', $this->t2P5Result); 
+        $stmt->bindParam(':t2P5ITen', $this->t2P5ITen); 
         
-        `guestteam_id`=0, 
-        `guestteam_count`=1, 
-        `guestteam_result`=0, 
-        `guestteam_points`=0, 
-        `t2_p1_number`=NULL, 
-        `t2_p1_result`=0, 
-        `t2_p2_number`=NULL, 
-        `t2_p2_result`=0, 
-        `t2_p3_number`=NULL, 
-        `t2_p3_result`=0, 
-        `t2_p4_number`=NULL, 
-        `t2_p4_result`=0, 
-        `t2_p5_number`=NULL, 
-        `t2_p5_result`=0, 
-        
-        `season`='2016 / 2017', 
-        `change_date`='2016-11-16 22:47:54', 
-        `usr_id`=20, 
-        `creation_date`='2016-10-10 09:10:42', 
-        `creation_usr_id`=26, 
-        `t1_p1_i_zehner`=0, 
-        `t1_p2_i_zehner`=0, 
-        `t1_p3_i_zehner`=0, 
-        `t1_p4_i_zehner`=0, 
-        `t1_p5_i_zehner`=0, 
-        `t2_p1_i_zehner`=0, 
-        `t2_p2_i_zehner`=0, 
-        `t2_p3_i_zehner`=0, 
-        `t2_p4_i_zehner`=0, 
-        `t2_p5_i_zehner`=0, 
-        `season_state`='W', 
-        `discipline`=NULL 
-        
-        WHERE `result_id`=9;
+        $stmt->bindParam(':userId', $this->userId); 
+        $stmt->bindParam(':changeDate', $this->changeDate); 
+        $stmt->bindParam(':id', $this->id); 
 
-        $stmt=$db->prepare($sql);
-        
-        
-        $stmt->bindParam(':changeDate', $this->changeDate);
-        $stmt->bindParam(':userId', $this->userId);
-       
         $stmt->execute();
         Database::disconnect();
     }
@@ -366,16 +343,43 @@ class TeamResults implements DatabaseService
     }
 
     public function setData($homeTeamShooters, $homeTeamResults,  $guastTeamShooters, $guastTeamResults){
+        $homeTeamResult = 0;
         for ($i = 0; $i < count($homeTeamShooters); $i++) {
+
             $this->setHomeTeamShooter($i+1, $homeTeamShooters[$i]);
             $this->setHomeTeamResult($i+1, $homeTeamResults[$i]);
+            $homeTeamResult += $homeTeamResults[$i];
         }
+        $this->homeTeamResult =  $homeTeamResult;        
+        $this->homeTeamCount = count($homeTeamShooters);
 
+        $guastTeamResult = 0;
         for ($i = 0; $i < count($guastTeamShooters); $i++) {
             $this->setGuestTeamShooter($i+1, $guastTeamShooters[$i]);
             $this->setGuestTeamResult($i+1, $guastTeamResults[$i]);
+            $guastTeamResult += $guastTeamResults[$i];
         }
-        //var_dump($this);
+        
+        $this->guestTeamResult = $guastTeamResult;
+        $this->guestTeamCount = count($guastTeamShooters);
+
+        $homeTeamPoints = 1;
+        $guestTeamPoints = 1;
+        if($this->homeTeamResult> $this->guestTeamResult){
+            $homeTeamPoints = 2;
+            $guestTeamPoints = 0;
+        }
+        else if($this->homeTeamResult< $this->guestTeamResult){
+            $homeTeamPoints = 0;
+            $guestTeamPoints = 2;
+        }
+
+        $this->homeTeamPoints =  $homeTeamPoints;        
+        $this->guestTeamPoints = $guestTeamPoints;
+
+        
+        $currentDateTime = new DateTime('now');
+        $this->changeDate = $currentDateTime->format('Y-m-d H:i:s');
     }   
 
     private function setHomeTeamShooter($snumber, $shooterNr){
@@ -502,7 +506,7 @@ class TeamResults implements DatabaseService
     }
 
     public function validate(){
-        return false;
+        return true;
     }
 
 
@@ -555,6 +559,15 @@ class TeamResults implements DatabaseService
     {
         $this->guestTeamId = $guestTeamId;
     }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+    }
+
 
     
     /**
