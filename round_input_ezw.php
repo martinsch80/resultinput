@@ -92,7 +92,7 @@ if(!empty($_POST))
     
         if($singleResult->validate())
         {
-            $singleResult->create($discipline);
+            $singleResult->create();
         }
     }
     else if(!empty($_POST['singleResultId'])){
@@ -106,7 +106,7 @@ renderHeader("Ergebnisseingabe");
 echo '<body>';
 
 
-$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($discipline, $saison, $roundId, $verein);
+$singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundId, $verein);
 
 ?>
 <section class="container-fluid">
