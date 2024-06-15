@@ -59,13 +59,13 @@ class SingelResult implements DatabaseService
 
 
    
-    public static function getAll()
+    public static function getAll($discipline)
     {
         // TODO: Implement getAll() method.
         $list = [];
 
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $sql = 'SELECT * FROM '.self::TABLE_getTabel($discipline).' ORDER BY '.self::COLUMN_ROUNDID.' ASC';
         $stmt=$db->prepare($sql);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -81,12 +81,12 @@ class SingelResult implements DatabaseService
         return $list;
     }
 
-    public static function getBySeasonAndRoundIdAndUserCode($season, $roundId, $userCode)
+    public static function getBySeasonAndRoundIdAndUserCode($discipline, $season, $roundId, $userCode)
     {
         // TODO: Implement getAll() method.
         $list = [];
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND '.self::COLUMN_NUMBER.' like :userCode ORDER BY '.self::COLUMN_RESULT.' DESC';
+        $sql = 'SELECT * FROM '.self::getTabel($discipline).' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND '.self::COLUMN_NUMBER.' like :userCode ORDER BY '.self::COLUMN_RESULT.' DESC';
         $stmt=$db->prepare($sql);
         
         $stmt->bindParam(':season', $season);
@@ -108,12 +108,19 @@ class SingelResult implements DatabaseService
         return $list;
     }
 
+    public static function getTabel($discipline){
+        if(strtolower($discipline->getSeason()) == "s") {
+            return self::TABLE_NAME . "_s";
+        }
+        return self::TABLE_NAME;
+    }
+
     public function update(){
         // not Implemented;
     }
-    public function create(){
+    public function create($discipline){
         $db = Database::connect();
-        $sql = 'INSERT INTO `tlsb_single_result` (`round_id`, `hobby`, `p_number`, `p_result`, `season`, `change_date`, `usr_id`, `p_i_zehner`, `season_state`, `discipline`) VALUES (:roundId, :hobby, :pnumber, :presult, :saison, :changeDate, :userId, :piten, :saisonState, :disciplinId)';
+        $sql = 'INSERT INTO `'. self::getTabel($discipline).'` (`round_id`, `hobby`, `p_number`, `p_result`, `season`, `change_date`, `usr_id`, `p_i_zehner`, `season_state`, `discipline`) VALUES (:roundId, :hobby, :pnumber, :presult, :saison, :changeDate, :userId, :piten, :saisonState, :disciplinId)';
         $stmt=$db->prepare($sql);
         
         $stmt->bindParam(':roundId', $this->roundId);
@@ -131,10 +138,10 @@ class SingelResult implements DatabaseService
         Database::disconnect();
 
     }
-    public static function delete($id){
+    public static function delete($discipline, $id){
         $db = Database::connect();
 
-        $sql = 'DELETE FROM tlsb_single_result WHERE result_id=?';
+        $sql = 'DELETE FROM '. self::getTabel($discipline) . ' WHERE result_id=?';
         $stmt = $db->prepare($sql);
         $stmt->execute(array($id));
         Database::disconnect();

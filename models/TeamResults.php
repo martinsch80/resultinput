@@ -190,13 +190,21 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
-    public static function getBySeasonAndTeamIdAndRoundId($season, $roundId, $teamId)
+    public static function getTable($discipline){
+        if(strtolower($discipline->getSeason()) == "s") {
+            return self::TABLE_NAME . "_s";
+        }
+        return self::TABLE_NAME;
+    }
+
+    public static function getBySeasonAndTeamIdAndRoundId($discipline, $season, $roundId, $teamId)
     {
         // TODO: Implement getAll() method.
         $list = [];
         //Round_id = 31 AND SEASON = '2022 / 2023' AND (hometeam_id = 171 OR guestteam_id = 171)
+
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $sql = 'SELECT * FROM '.self::getTable($discipline).' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
         $stmt=$db->prepare($sql);
         
         $stmt->bindParam(':season', $season);
@@ -218,6 +226,67 @@ class TeamResults implements DatabaseService
 
     public function update(){
         // not Implemented;
+
+        $db = Database::connect();
+        $sql = 'UPDATE `'. self::getTabel($discipline).'` SET ';
+
+        `hometeam_count`=4, 
+        `hometeam_result`=1576.5, 
+        `hometeam_points`=2, 
+        `t1_p1_number`='70420022', 
+        `t1_p1_result`=404.2, 
+        `t1_p2_number`='70420001', 
+        `t1_p2_result`=401.3, 
+        `t1_p3_number`='70420006', 
+        `t1_p3_result`=381.6, 
+        `t1_p4_number`='70420011', 
+        `t1_p4_result`=389.4, 
+        `t1_p5_number`=NULL, 
+        `t1_p5_result`=0, 
+        
+        `guestteam_id`=0, 
+        `guestteam_count`=1, 
+        `guestteam_result`=0, 
+        `guestteam_points`=0, 
+        `t2_p1_number`=NULL, 
+        `t2_p1_result`=0, 
+        `t2_p2_number`=NULL, 
+        `t2_p2_result`=0, 
+        `t2_p3_number`=NULL, 
+        `t2_p3_result`=0, 
+        `t2_p4_number`=NULL, 
+        `t2_p4_result`=0, 
+        `t2_p5_number`=NULL, 
+        `t2_p5_result`=0, 
+        
+        `season`='2016 / 2017', 
+        `change_date`='2016-11-16 22:47:54', 
+        `usr_id`=20, 
+        `creation_date`='2016-10-10 09:10:42', 
+        `creation_usr_id`=26, 
+        `t1_p1_i_zehner`=0, 
+        `t1_p2_i_zehner`=0, 
+        `t1_p3_i_zehner`=0, 
+        `t1_p4_i_zehner`=0, 
+        `t1_p5_i_zehner`=0, 
+        `t2_p1_i_zehner`=0, 
+        `t2_p2_i_zehner`=0, 
+        `t2_p3_i_zehner`=0, 
+        `t2_p4_i_zehner`=0, 
+        `t2_p5_i_zehner`=0, 
+        `season_state`='W', 
+        `discipline`=NULL 
+        
+        WHERE `result_id`=9;
+
+        $stmt=$db->prepare($sql);
+        
+        
+        $stmt->bindParam(':changeDate', $this->changeDate);
+        $stmt->bindParam(':userId', $this->userId);
+       
+        $stmt->execute();
+        Database::disconnect();
     }
     public function create(){
         // not Implemented;
@@ -306,7 +375,7 @@ class TeamResults implements DatabaseService
             $this->setGuestTeamShooter($i+1, $guastTeamShooters[$i]);
             $this->setGuestTeamResult($i+1, $guastTeamResults[$i]);
         }
-        var_dump($this);
+        //var_dump($this);
     }   
 
     private function setHomeTeamShooter($snumber, $shooterNr){
