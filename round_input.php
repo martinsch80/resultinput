@@ -87,7 +87,7 @@ if(isset($_GET['teamId']))
     $teamId = $_GET['teamId'];
 }
 
-$teamResults = TeamResults::getBySeasonAndTeamIdAndRoundId($discipline, $saison,  $roundId, $teamId);
+$teamResults = TeamResults::getBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
 if(count($teamResults)>0){
     $teamResult = $teamResults[0];
 }
@@ -107,7 +107,7 @@ if(!empty($_POST))
 
     if($teamResult->validate())
     {
-        $teamResult->update($discipline);
+        $teamResult->update();
     }
 }
 
