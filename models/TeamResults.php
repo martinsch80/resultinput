@@ -233,8 +233,15 @@ class TeamResults implements DatabaseService
     }
 
     public function update(){
+        if(strtolower($this->discipline->getSeason()) == "s"){
+            return self::TABLE_NAME."_s";
+        }
+        return self::updateW();
+    }
+
+    private function updateW(){
         $db = Database::connect();
-        $sql = 'UPDATE '.$this->getTable() .' SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result , '.self::COLUMN_T1P1ITEN.' = :t1P1ITen , '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P2ITEN.' = :t1P2ITen , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P3ITEN.' = :t1P3ITen , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P4ITEN.' = :t1P4ITen , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_T1P5ITEN.' = :t1P5ITen , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P1ITEN.' = :t2P1ITen , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P2ITEN.' = :t2P2ITen , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P3ITEN.' = :t2P3ITen , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P4ITEN.' = :t2P4ITen , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_T2P5ITEN.' = :t2P5ITen , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
+        $sql = 'UPDATE '. self::TABLE_NAME .' SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result , '.self::COLUMN_T1P1ITEN.' = :t1P1ITen , '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P2ITEN.' = :t1P2ITen , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P3ITEN.' = :t1P3ITen , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P4ITEN.' = :t1P4ITen , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_T1P5ITEN.' = :t1P5ITen , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P1ITEN.' = :t2P1ITen , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P2ITEN.' = :t2P2ITen , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P3ITEN.' = :t2P3ITen , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P4ITEN.' = :t2P4ITen , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_T2P5ITEN.' = :t2P5ITen , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
         $stmt = $db->prepare($sql);
 
         $stmt->bindParam(':homeTeamCount', $this->homeTeamCount); 
@@ -281,6 +288,75 @@ class TeamResults implements DatabaseService
         $stmt->execute();
         Database::disconnect();
     }
+
+    private function updateS(){
+        $db = Database::connect();
+        $sql = 'UPDATE '. self::TABLE_NAME .'_s SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result, '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
+        $stmt = $db->prepare($sql);
+
+        $stmt->bindParam(':homeTeamCount', $this->homeTeamCount); 
+        $stmt->bindParam(':homeTeamResult', $this->homeTeamResult); 
+        $stmt->bindParam(':homeTeamPoints', $this->homeTeamPoints); 
+        $stmt->bindParam(':t1P1Number', $this->t1P1Number); 
+
+
+        $stmt->bindParam(':t1P1Result', $this->t1P1Result);         
+        
+        $stmt->bindParam(':t1P2Number', $this->t1P2Number); 
+        
+        
+        $stmt->bindParam(':t1P2Result', $this->t1P2Result); 
+        
+        $stmt->bindParam(':t1P3Number', $this->t1P3Number); 
+        
+        
+        $stmt->bindParam(':t1P3Result', $this->t1P3Result); 
+        
+        $stmt->bindParam(':t1P4Number', $this->t1P4Number); 
+        
+        
+        $stmt->bindParam(':t1P4Result', $this->t1P4Result); 
+        
+        $stmt->bindParam(':t1P5Number', $this->t1P5Number); 
+        
+        
+        $stmt->bindParam(':t1P5Result', $this->t1P5Result); 
+        $stmt->bindParam(':guestTeamCount', $this->guestTeamCount); 
+        $stmt->bindParam(':guestTeamResult', $this->guestTeamResult); 
+        $stmt->bindParam(':guestTeamPoints', $this->guestTeamPoints); 
+        $stmt->bindParam(':t2P1Number', $this->t2P1Number); 
+        
+        
+        $stmt->bindParam(':t2P1Result', $this->t2P1Result); 
+        
+        $stmt->bindParam(':t2P2Number', $this->t2P2Number); 
+        
+        
+        $stmt->bindParam(':t2P2Result', $this->t2P2Result); 
+        
+        $stmt->bindParam(':t2P3Number', $this->t2P3Number); 
+        
+        
+        $stmt->bindParam(':t2P3Result', $this->t2P3Result); 
+        
+        $stmt->bindParam(':t2P4Number', $this->t2P4Number); 
+        
+        
+        $stmt->bindParam(':t2P4Result', $this->t2P4Result); 
+        
+        $stmt->bindParam(':t2P5Number', $this->t2P5Number); 
+        
+        
+        $stmt->bindParam(':t2P5Result', $this->t2P5Result); 
+        
+        $stmt->bindParam(':userId', $this->userId); 
+        $stmt->bindParam(':changeDate', $this->changeDate); 
+        $stmt->bindParam(':id', $this->id); 
+
+        $stmt->execute();
+        Database::disconnect();
+    }
+
     public function create(){
         // not Implemented;
     }
