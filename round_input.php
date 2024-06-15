@@ -214,7 +214,7 @@ echo '<body>';
                         echo "<td>";
                         echo "<input name='".$prefix."Result[]' ". $disabled ." class='".$prefix."Result shooterResult form-control' type='number'";
                         $step = $discipline->getZiroOne()? 0.1: 1;
-                        echo " value='".$teamResult->getShooterResult($i, $team->getId())."' min='0' max='".$discipline->getResultRange()."' step='".$step."'/></td>";
+                        echo " value='".$teamResult->getShooterResult($i, $team->getId())."' step='".$step."'/></td>";
                         echo "</tr>"; 
                     }
                     echo "<tr>";
