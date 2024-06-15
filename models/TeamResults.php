@@ -190,13 +190,22 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
-    public static function getBySeasonAndTeamIdAndRoundId($season, $roundId, $teamId)
+    public static function getBySeasonAndTeamIdAndRoundId($season, $roundId, $teamId){
+        return self::getBySeasonAndTeamIdAndRoundIdAndTable($season, $roundId, $teamId, self::TABLE_NAME);
+    }
+
+    
+    public static function getSummerBySeasonAndTeamIdAndRoundId($season, $roundId, $teamId){
+        return self::getBySeasonAndTeamIdAndRoundIdAndTable($season, $roundId, $teamId, self::TABLE_NAME."_s");
+    }
+
+    private static function getBySeasonAndTeamIdAndRoundIdAndTable($season, $roundId, $teamId, $table)
     {
         // TODO: Implement getAll() method.
         $list = [];
         //Round_id = 31 AND SEASON = '2022 / 2023' AND (hometeam_id = 171 OR guestteam_id = 171)
         $db = Database::connect();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
+        $sql = 'SELECT * FROM '. $table .' WHERE '.self::COLUMN_SEASON.' = :season AND '.self::COLUMN_ROUNDID.' = :roundId AND ('.self::COLUMN_HOMETEAMID.' = :teamId or '.self::COLUMN_GUESTTEAMID.' = :teamId) ORDER BY '.self::COLUMN_ROUNDID.' ASC';
         $stmt=$db->prepare($sql);
         
         $stmt->bindParam(':season', $season);
@@ -216,9 +225,16 @@ class TeamResults implements DatabaseService
         return $list;
     }
 
+    private function getTable(){
+        if(strtolower($this->discipline->getSeason()) == "s"){
+            return self::TABLE_NAME."_s";
+        }
+        return self::TABLE_NAME;
+    }
+
     public function update(){
         $db = Database::connect();
-        $sql = 'UPDATE '.self::TABLE_NAME.' SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result , '.self::COLUMN_T1P1ITEN.' = :t1P1ITen , '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P2ITEN.' = :t1P2ITen , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P3ITEN.' = :t1P3ITen , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P4ITEN.' = :t1P4ITen , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_T1P5ITEN.' = :t1P5ITen , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P1ITEN.' = :t2P1ITen , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P2ITEN.' = :t2P2ITen , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P3ITEN.' = :t2P3ITen , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P4ITEN.' = :t2P4ITen , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_T2P5ITEN.' = :t2P5ITen , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
+        $sql = 'UPDATE '.$this->getTable() .' SET '.self::COLUMN_HOMETEAMCOUNT.' = :homeTeamCount , '.self::COLUMN_HOMETEAMRESULT.' = :homeTeamResult , '.self::COLUMN_HOMETEAMPOINTS.' = :homeTeamPoints , '.self::COLUMN_T1P1NUMBER.' = :t1P1Number , '.self::COLUMN_T1P1RESULT.' = :t1P1Result , '.self::COLUMN_T1P1ITEN.' = :t1P1ITen , '.self::COLUMN_T1P2NUMBER.' = :t1P2Number , '.self::COLUMN_T1P2RESULT.' = :t1P2Result , '.self::COLUMN_T1P2ITEN.' = :t1P2ITen , '.self::COLUMN_T1P3NUMBER.' = :t1P3Number , '.self::COLUMN_T1P3RESULT.' = :t1P3Result , '.self::COLUMN_T1P3ITEN.' = :t1P3ITen , '.self::COLUMN_T1P4NUMBER.' = :t1P4Number , '.self::COLUMN_T1P4RESULT.' = :t1P4Result , '.self::COLUMN_T1P4ITEN.' = :t1P4ITen , '.self::COLUMN_T1P5NUMBER.' = :t1P5Number , '.self::COLUMN_T1P5RESULT.' = :t1P5Result , '.self::COLUMN_T1P5ITEN.' = :t1P5ITen , '.self::COLUMN_GUESTEAMCOUNT.' = :guestTeamCount , '.self::COLUMN_GUESTEAMRESULT.' = :guestTeamResult , '.self::COLUMN_GUESTEAMPOINTS.' = :guestTeamPoints , '.self::COLUMN_T2P1NUMBER.' = :t2P1Number , '.self::COLUMN_T2P1RESULT.' = :t2P1Result , '.self::COLUMN_T2P1ITEN.' = :t2P1ITen , '.self::COLUMN_T2P2NUMBER.' = :t2P2Number , '.self::COLUMN_T2P2RESULT.' = :t2P2Result , '.self::COLUMN_T2P2ITEN.' = :t2P2ITen , '.self::COLUMN_T2P3NUMBER.' = :t2P3Number , '.self::COLUMN_T2P3RESULT.' = :t2P3Result , '.self::COLUMN_T2P3ITEN.' = :t2P3ITen , '.self::COLUMN_T2P4NUMBER.' = :t2P4Number , '.self::COLUMN_T2P4RESULT.' = :t2P4Result , '.self::COLUMN_T2P4ITEN.' = :t2P4ITen , '.self::COLUMN_T2P5NUMBER.' = :t2P5Number , '.self::COLUMN_T2P5RESULT.' = :t2P5Result , '.self::COLUMN_T2P5ITEN.' = :t2P5ITen , '.self::COLUMN_USERID.' = :userId, '.self::COLUMN_CHANGEDATE.' = :changeDate WHERE '.self::COLUMN_ID.' = :id';
         $stmt = $db->prepare($sql);
 
         $stmt->bindParam(':homeTeamCount', $this->homeTeamCount); 
@@ -566,6 +582,14 @@ class TeamResults implements DatabaseService
     public function setUserId($userId)
     {
         $this->userId = $userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setDiscipline($discipline)
+    {
+        $this->discipline = $discipline;
     }
 
 
