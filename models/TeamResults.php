@@ -226,14 +226,14 @@ class TeamResults implements DatabaseService
     }
 
     private function getTable(){
-        if(strtolower($this->discipline->getSeason()) == "s"){
+        if($this->discipline->isSummerState()){
             return self::TABLE_NAME."_s";
         }
         return self::TABLE_NAME;
     }
 
     public function update(){
-        if(strtolower($this->discipline->getSeason()) == "s"){
+        if($this->discipline->isSummerState()){
             return self::updateS();
         }
         return self::updateW();

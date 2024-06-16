@@ -87,11 +87,11 @@ if(isset($_GET['teamId']))
     $teamId = $_GET['teamId'];
 }
 
-if(strtolower($discipline->getSeason()) == "w"){
-    $teamResults = TeamResults::getBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
+if($discipline->isSummerState()){
+    $teamResults = TeamResults::getSummerBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
 }
 else{
-    $teamResults = TeamResults::getSummerBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
+    $teamResults = TeamResults::getBySeasonAndTeamIdAndRoundId($saison,  $roundId, $teamId);
 }
 
 if(count($teamResults)>0){

@@ -14,6 +14,7 @@ class Discipline implements DatabaseService
     const COLUMN_WEAPON = "weapon";
     const COLUMN_SEASON = "season_state";
     const COLUMN_PSIZE = "s_t";
+    const COLUMN_ERG_STATE = "erg_state";
     const COLUMN_RESULT_RANGE = "result_range";
     const COLUMN_ZEHNTEL = "zehntel";
     const COLUMN_DISTRICTS = "destrict_str";
@@ -23,13 +24,14 @@ class Discipline implements DatabaseService
     private $weapon;
     private $season;
     private $psize;
+    private $ergState;
     private $resultRange;
     private $ziroOne;
     private $districts;
 
     private $errors;
 
-    public function __construct($id, $name, $weapon, $season, $psize, $resultRange, $ziroOne, $districts)
+    public function __construct($id, $name, $weapon, $season, $psize, $resultRange, $ziroOne, $districts, $ergState)
     {
         $this->id = $id;
         $this->name = $name;
@@ -39,6 +41,7 @@ class Discipline implements DatabaseService
         $this->resultRange = $resultRange;
         $this->ziroOne = $ziroOne;
         $this->districts = $districts;
+        $this->ergState = $ergState;
 
         $this->errors = [];
     }
@@ -128,7 +131,8 @@ class Discipline implements DatabaseService
             $obj[self::COLUMN_PSIZE],
             $obj[self::COLUMN_RESULT_RANGE],
             $obj[self::COLUMN_ZEHNTEL],
-            $obj[self::COLUMN_DISTRICTS]
+            $obj[self::COLUMN_DISTRICTS],
+            $obj[self::COLUMN_ERG_STATE]
          );
     }
 
@@ -260,6 +264,28 @@ class Discipline implements DatabaseService
     {
         $this->districts = $districts;
     }
+
+
+    /**
+     * @return array
+     */
+    public function getErgState()
+    {
+        return $this->ergState;
+    }
+
+    /**
+     * @param array $errors
+     */
+    public function setErgState($ergState)
+    {
+        $this->ergState = $ergState;
+    }
+
+    public function isSummerState(){
+        return $this->ergState == 2;
+    }
+    
     /**
      * @return array
      */
