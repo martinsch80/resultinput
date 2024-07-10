@@ -16,5 +16,5 @@ jobs:
           port: 22
           user: schma
           pass: ${{ secrets.tlsb_ftp_password }}
-          remoteDir: '/var/www/html/webinput/'
+          remoteDir: '/var/www/html/resultinput/'
           reverse: true        
