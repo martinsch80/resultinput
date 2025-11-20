@@ -26,7 +26,6 @@ require "models/Verein.php";
 
 if(isset($_SESSION['user'])) {
     $user = User::getCredentialsFromSession();
-    //die($worker->getEmail());
     if ($user->isLoggedIn())
     {
         //
@@ -34,14 +33,12 @@ if(isset($_SESSION['user'])) {
     else
     {
         header("Location: login.php");
-        //Worker::deleteCredentialsFromSession();
         exit();
     }
 }
 else
 {
     header("Location: login.php");
-    //Worker::deleteCredentialsFromSession();
     exit();
 }
 
@@ -174,7 +171,7 @@ echo '<body>';
             infoTableEnd();           
 
             // Eingabe nur erlaubt, wenn User Recht hat und Zeitraum passt
-            $disabled = $user->getRight() == 1 || (strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop() . " 23:59:59") > strtotime('now')) ? "" : "disabled";
+            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop() . " 23:59:59") > strtotime('now') ? "" : "disabled";
 
             ?>
             <form action="#" method="POST">
@@ -186,10 +183,6 @@ echo '<body>';
                     renderTeamTable($teamResult, $guaestTeam, $discipline, $disabled, "Gast", "guastTeam");
                 }
 
-                /**
-                 * Ausgabe einer Team-Tabelle.
-                 * Eingabe eines Ergebnisses ist nur möglich, wenn ein Schütze ausgewählt ist.
-                 */
                 function renderTeamTable($teamResult, $team, $discipline, $disabled, $title, $prefix){
                     $shooters = Shooter::getAllByPassNr($team->getCode(), $discipline->getWeapon());
                     echo '<p class="text-center"><strong>'.$title.': '.utf8_convert($team->getName()).'</strong></p>';
@@ -202,32 +195,19 @@ echo '<body>';
                     echo "</tr>";
 
                     for($i=1; $i <= $discipline->getPsize(); $i++) {
-
-                        // bereits gespeicherter Schütze für diese Position
-                        $selectedPassNr = $teamResult->getShooterNr($i, $team->getId());
-
                         echo "<tr>";
                         echo "<td>".$i."</td>";
-
-                        // Select mit prefix-spezifischer Klasse für das JS
-                        echo "<td><select ". $disabled ." class='shooterSelect shooterSelect-".$prefix." form-control' name='".$prefix."Shooter[]'>";
+                        echo "<td><select ". $disabled ." class='shooterSelect form-control' name='".$prefix."Shooter[]'>";
                         echo "<option value=''>Schütze auswählen</option>";
                         foreach ($shooters as $shooter)
                         {
                             echo "<option ";
-                            if($selectedPassNr == $shooter->getPassNr()) echo "selected ";                        
+                            if($teamResult->getShooterNr($i, $team->getId()) == $shooter->getPassNr()) echo "selected ";                        
                             echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                         }
                         echo "</select></td>";
                         echo "<td>";
-
-                        // Ergebnisfeld: wenn global Eingabe erlaubt, aber kein Schütze gewählt -> zusätzlich disabled
-                        $inputDisabled = $disabled;
-                        if (empty($disabled) && empty($selectedPassNr)) {
-                            $inputDisabled = "disabled";
-                        }
-
-                        echo "<input name='".$prefix."Result[]' ". $inputDisabled ." class='".$prefix."Result shooterResult form-control' type='number'";
+                        echo "<input name='".$prefix."Result[]' ". $disabled ." class='".$prefix."Result shooterResult form-control' type='number'";
                         $step = $discipline->getZiroOne()? 0.1: 1;
                         echo " value='".$teamResult->getShooterResult($i, $team->getId())."' step='".$step."'/></td>";
                         echo "</tr>"; 
@@ -238,12 +218,13 @@ echo '<body>';
                     echo "<td id='".$prefix."total' class='shooterResult total'>".$teamResult->getTeamResult($team->getId())."</td>";
                     echo "</tr>";
                     echo "</table>";
+                    // HIER: $disabled mitgeben, damit JS weiß, ob es überhaupt eingreifen darf
                     renderUpdateJS($prefix, $disabled);
                     echo "</div>";
                 }
 
                 if(empty($disabled)){
-                    echo '<input type="submit" class="btn btn-success" href="#"/>';
+                    echo '<input  type="submit" class="btn btn-success" href="#"/>';
                 }
 
                 echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
@@ -251,64 +232,59 @@ echo '<body>';
                 echo '<input type="hidden" name="teamId" value="'.$teamId.'">';
                 backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId);
 
-                /**
-                 * JS für Summenberechnung und Aktivierung/Deaktivierung der Ergebnisfelder
-                 * abhängig von der Schützenauswahl.
-                 */
                 function renderUpdateJS($prefix, $disabled){
                     ?>
                         <script type="text/javascript">
-                            // Summe für ein Team neu berechnen
-                            function update<?=$prefix?>Total() {
-                                var amount = 0;
-                                $(".<?=$prefix?>Result").each(function() {
-                                    var val = parseFloat($(this).val());
-                                    if (!isNaN(val)) {
-                                        amount += val;
+                            (function($){
+                                // Summe für dieses Team neu berechnen
+                                function update<?= $prefix ?>Total() {
+                                    var amount = 0;
+                                    $(".<?= $prefix ?>Result").each(function() {
+                                        var val = parseFloat($(this).val());
+                                        if (!isNaN(val)) {
+                                            amount += val;
+                                        }
+                                    });
+                                    $("#<?= $prefix ?>total").text(parseFloat(amount.toFixed(1)));
+                                }
+
+                                <?php if (empty($disabled)) : ?>
+                                // Ergebnisfeld nur aktiv, wenn ein Schütze gewählt ist
+                                function update<?= $prefix ?>Row(selectEl) {
+                                    var $row   = $(selectEl).closest("tr");
+                                    var $input = $row.find("input.<?= $prefix ?>Result");
+
+                                    if ($(selectEl).val()) {
+                                        // Schütze gewählt → Eingabe erlauben
+                                        $input.prop("disabled", false);
+                                    } else {
+                                        // Kein Schütze → Wert löschen und sperren
+                                        $input.val("");
+                                        $input.prop("disabled", true);
                                     }
+                                }
+
+                                // Initial alle Zeilen korrekt setzen
+                                $("select[name='<?= $prefix ?>Shooter[]']").each(function(){
+                                    update<?= $prefix ?>Row(this);
                                 });
-                                $("#<?=$prefix?>total").text(parseFloat(amount.toFixed(1)));
-                            }
 
-                            // Summe aktualisieren, wenn sich ein Ergebnis ändert
-                            $(".<?=$prefix?>Result").on("change keyup", function(){
-                                update<?=$prefix?>Total();
-                            });
+                                // Bei Änderung des Schützen die Zeile aktualisieren
+                                $("select[name='<?= $prefix ?>Shooter[]']").on("change", function(){
+                                    update<?= $prefix ?>Row(this);
+                                    update<?= $prefix ?>Total();
+                                });
+                                <?php endif; ?>
 
-                            <?php if (empty($disabled)) : ?>
-                            // Nur wenn generell Eingabe erlaubt ist:
-                            // Auf Änderung der Schützenauswahl reagieren
-                            $(".shooterSelect-<?=$prefix?>").change(function(){
-                                var row = $(this).closest("tr");
-                                var resultInput = row.find("input.<?=$prefix?>Result");
+                                // Summe aktualisieren, wenn ein Ergebnis geändert wird
+                                $(".<?= $prefix ?>Result").on("change keyup", function(){
+                                    update<?= $prefix ?>Total();
+                                });
 
-                                if ($(this).val()) {
-                                    // Schütze gewählt → Ergebnisfeld aktivieren
-                                    resultInput.prop("disabled", false);
-                                } else {
-                                    // Kein Schütze → Ergebnisfeld leeren und sperren
-                                    resultInput.val("");
-                                    resultInput.prop("disabled", true);
-                                }
+                                // Initiale Summe setzen
+                                update<?= $prefix ?>Total();
 
-                                update<?=$prefix?>Total();
-                            });
-
-                            // Initialzustand nach dem Laden setzen
-                            $(".shooterSelect-<?=$prefix?>").each(function(){
-                                var row = $(this).closest("tr");
-                                var resultInput = row.find("input.<?=$prefix?>Result");
-
-                                if ($(this).val()) {
-                                    resultInput.prop("disabled", false);
-                                } else {
-                                    resultInput.prop("disabled", true);
-                                }
-                            });
-                            <?php endif; ?>
-
-                            // initiale Summe setzen
-                            update<?=$prefix?>Total();
+                            })(jQuery);
                         </script>
                     <?php
                 };
@@ -320,6 +296,7 @@ echo '<body>';
 </section>
 
 <?php
+
     renderLogoutSection();
     echo '</body>';
     echo '</html>';
