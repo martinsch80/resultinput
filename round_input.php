@@ -173,10 +173,8 @@ echo '<body>';
 
             infoTableEnd();           
 
-
-           
-            
-            $disabled = $user->getRight() == 1 || strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop() . " 23:59:59") > strtotime('now')?"":"disabled";
+            // Eingabe nur erlaubt, wenn User Recht hat und Zeitraum passt
+            $disabled = $user->getRight() == 1 || (strtotime($round->getStart()) < strtotime('now') && strtotime($round->getStop() . " 23:59:59") > strtotime('now')) ? "" : "disabled";
 
             ?>
             <form action="#" method="POST">
@@ -188,6 +186,10 @@ echo '<body>';
                     renderTeamTable($teamResult, $guaestTeam, $discipline, $disabled, "Gast", "guastTeam");
                 }
 
+                /**
+                 * Ausgabe einer Team-Tabelle.
+                 * Eingabe eines Ergebnisses ist nur möglich, wenn ein Schütze ausgewählt ist.
+                 */
                 function renderTeamTable($teamResult, $team, $discipline, $disabled, $title, $prefix){
                     $shooters = Shooter::getAllByPassNr($team->getCode(), $discipline->getWeapon());
                     echo '<p class="text-center"><strong>'.$title.': '.utf8_convert($team->getName()).'</strong></p>';
@@ -200,19 +202,32 @@ echo '<body>';
                     echo "</tr>";
 
                     for($i=1; $i <= $discipline->getPsize(); $i++) {
+
+                        // bereits gespeicherter Schütze für diese Position
+                        $selectedPassNr = $teamResult->getShooterNr($i, $team->getId());
+
                         echo "<tr>";
                         echo "<td>".$i."</td>";
-                        echo "<td><select ". $disabled ." class='shooterSelect form-control' name='".$prefix."Shooter[]'>";
+
+                        // Select mit prefix-spezifischer Klasse für das JS
+                        echo "<td><select ". $disabled ." class='shooterSelect shooterSelect-".$prefix." form-control' name='".$prefix."Shooter[]'>";
                         echo "<option value=''>Schütze auswählen</option>";
                         foreach ($shooters as $shooter)
                         {
                             echo "<option ";
-                            if($teamResult->getShooterNr($i, $team->getId()) == $shooter->getPassNr()) echo "selected ";                        
+                            if($selectedPassNr == $shooter->getPassNr()) echo "selected ";                        
                             echo "value='".$shooter->getPassNr()."'>".utf8_convert($shooter->getName())."</option>";
                         }
                         echo "</select></td>";
                         echo "<td>";
-                        echo "<input name='".$prefix."Result[]' ". $disabled ." class='".$prefix."Result shooterResult form-control' type='number'";
+
+                        // Ergebnisfeld: wenn global Eingabe erlaubt, aber kein Schütze gewählt -> zusätzlich disabled
+                        $inputDisabled = $disabled;
+                        if (empty($disabled) && empty($selectedPassNr)) {
+                            $inputDisabled = "disabled";
+                        }
+
+                        echo "<input name='".$prefix."Result[]' ". $inputDisabled ." class='".$prefix."Result shooterResult form-control' type='number'";
                         $step = $discipline->getZiroOne()? 0.1: 1;
                         echo " value='".$teamResult->getShooterResult($i, $team->getId())."' step='".$step."'/></td>";
                         echo "</tr>"; 
@@ -223,11 +238,12 @@ echo '<body>';
                     echo "<td id='".$prefix."total' class='shooterResult total'>".$teamResult->getTeamResult($team->getId())."</td>";
                     echo "</tr>";
                     echo "</table>";
-                    renderUpdateJS($prefix);
+                    renderUpdateJS($prefix, $disabled);
                     echo "</div>";
                 }
+
                 if(empty($disabled)){
-                    echo '<input  type="submit" class="btn btn-success" href="#"/>';
+                    echo '<input type="submit" class="btn btn-success" href="#"/>';
                 }
 
                 echo '<input type="hidden" name="disciplineId" value="'.$disciplineId.'">';
@@ -235,17 +251,64 @@ echo '<body>';
                 echo '<input type="hidden" name="teamId" value="'.$teamId.'">';
                 backButton("teams.php?disciplineId=".$disciplineId."&roundId=".$roundId);
 
-                function renderUpdateJS($prefix){
+                /**
+                 * JS für Summenberechnung und Aktivierung/Deaktivierung der Ergebnisfelder
+                 * abhängig von der Schützenauswahl.
+                 */
+                function renderUpdateJS($prefix, $disabled){
                     ?>
                         <script type="text/javascript">
-                            $(".<?=$prefix?>Result").change(function(){
+                            // Summe für ein Team neu berechnen
+                            function update<?=$prefix?>Total() {
                                 var amount = 0;
-                                $(".<?=$prefix?>Result").each( function() {
-                                    var val = parseFloat($(this)[0].value)
-                                    if(val) amount += val;
-                                })
-                                $("#<?=$prefix?>total").text(parseFloat(amount.toFixed(1)))
+                                $(".<?=$prefix?>Result").each(function() {
+                                    var val = parseFloat($(this).val());
+                                    if (!isNaN(val)) {
+                                        amount += val;
+                                    }
+                                });
+                                $("#<?=$prefix?>total").text(parseFloat(amount.toFixed(1)));
+                            }
+
+                            // Summe aktualisieren, wenn sich ein Ergebnis ändert
+                            $(".<?=$prefix?>Result").on("change keyup", function(){
+                                update<?=$prefix?>Total();
                             });
+
+                            <?php if (empty($disabled)) : ?>
+                            // Nur wenn generell Eingabe erlaubt ist:
+                            // Auf Änderung der Schützenauswahl reagieren
+                            $(".shooterSelect-<?=$prefix?>").change(function(){
+                                var row = $(this).closest("tr");
+                                var resultInput = row.find("input.<?=$prefix?>Result");
+
+                                if ($(this).val()) {
+                                    // Schütze gewählt → Ergebnisfeld aktivieren
+                                    resultInput.prop("disabled", false);
+                                } else {
+                                    // Kein Schütze → Ergebnisfeld leeren und sperren
+                                    resultInput.val("");
+                                    resultInput.prop("disabled", true);
+                                }
+
+                                update<?=$prefix?>Total();
+                            });
+
+                            // Initialzustand nach dem Laden setzen
+                            $(".shooterSelect-<?=$prefix?>").each(function(){
+                                var row = $(this).closest("tr");
+                                var resultInput = row.find("input.<?=$prefix?>Result");
+
+                                if ($(this).val()) {
+                                    resultInput.prop("disabled", false);
+                                } else {
+                                    resultInput.prop("disabled", true);
+                                }
+                            });
+                            <?php endif; ?>
+
+                            // initiale Summe setzen
+                            update<?=$prefix?>Total();
                         </script>
                     <?php
                 };
@@ -256,16 +319,8 @@ echo '<body>';
     </div>
 </section>
 
-
-
-
-
 <?php
-
     renderLogoutSection();
     echo '</body>';
     echo '</html>';
 ?>
-
-
-
