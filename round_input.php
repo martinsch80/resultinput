@@ -262,17 +262,21 @@ echo '<body>';
                                         $input.val("");
                                         $input.prop("disabled", true);
                                     }
+                                    // Summe nach jeder Änderung aktualisieren
+                                    update<?= $prefix ?>Total();
                                 }
 
-                                // Initial alle Zeilen korrekt setzen
-                                $("select[name='<?= $prefix ?>Shooter[]']").each(function(){
-                                    update<?= $prefix ?>Row(this);
-                                });
+                                // Sicherstellen, dass Code nach DOM-Laden ausgeführt wird
+                                $(document).ready(function() {
+                                    // Initial alle Zeilen korrekt setzen
+                                    $("select[name='<?= $prefix ?>Shooter[]']").each(function(){
+                                        update<?= $prefix ?>Row(this);
+                                    });
 
-                                // Bei Änderung des Schützen die Zeile aktualisieren
-                                $("select[name='<?= $prefix ?>Shooter[]']").on("change", function(){
-                                    update<?= $prefix ?>Row(this);
-                                    update<?= $prefix ?>Total();
+                                    // Bei Änderung des Schützen die Zeile aktualisieren
+                                    $("select[name='<?= $prefix ?>Shooter[]']").on("change", function(){
+                                        update<?= $prefix ?>Row(this);
+                                    });
                                 });
                                 <?php endif; ?>
 

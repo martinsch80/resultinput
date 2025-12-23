@@ -229,6 +229,31 @@ $singleResults = SingelResult::getBySeasonAndRoundIdAndUserCode($saison, $roundI
         $("#form").submit();
     }
 
+    // Ergebnisfeld nur aktiv, wenn ein Schütze gewählt ist
+    $(document).ready(function() {
+        function updateResultInput() {
+            var $shooterSelect = $("select[name='shooter']");
+            var $resultInput = $("input[name='result']");
+
+            if ($shooterSelect.val()) {
+                // Schütze gewählt → Eingabe erlauben
+                $resultInput.prop("disabled", false);
+            } else {
+                // Kein Schütze → Wert löschen und sperren
+                $resultInput.val("");
+                $resultInput.prop("disabled", true);
+            }
+        }
+
+        // Initial beim Laden prüfen
+        updateResultInput();
+
+        // Bei Änderung des Schützen aktualisieren
+        $("select[name='shooter']").on("change", function() {
+            updateResultInput();
+        });
+    });
+
 </script>
 
 <?php
